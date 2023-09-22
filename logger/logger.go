@@ -14,6 +14,10 @@ func (log *Logger) Fatal(err error) {
 	log.Logger.Fatal(err.Error())
 }
 
+func (log *Logger) Error(err error) {
+	log.Logger.Error(err.Error())
+}
+
 func New() (*Logger, error) {
 	log, err := zap.NewProduction()
 	if err != nil {

@@ -152,7 +152,9 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
                   <a href="/equipment/{{.ID}}"> <button type="button" class="btn btn-sm btn-outline-secondary">Подробнее</button></a>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" style="--bs-btn-hover-bg: red">Удалить</button>
+                  <form method="POST" action="/equipment/{{.ID}}{{if $.Search}}?title={{$.Search}}{{end}}">
+                  <button type="submit" class="btn btn-sm btn-outline-secondary" style="--bs-btn-hover-bg: red">Удалить</button>
+                  </form>
                 </div>
                 <small class="text-body-secondary">Всего: {{.Count}}</small>
               </div>

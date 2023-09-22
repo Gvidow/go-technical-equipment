@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -19,12 +21,12 @@ func (s *Service) MainPage(c *gin.Context) {
 		data["Search"] = q[0]
 		equipments, err = s.u.Equipment().SearchEquipmentsByTitle(q[0])
 		if err != nil {
-			s.log.Error(err.Error())
+			s.log.Error(err)
 		}
 	} else {
 		equipments, err = s.u.Equipment().GetAllEquipments()
 		if err != nil {
-			s.log.Error(err.Error())
+			s.log.Error(err)
 		}
 	}
 	data["Equipments"] = equipments
@@ -35,17 +37,34 @@ func (s *Service) Equipment(c *gin.Context) {
 	idString := c.Param("id")
 	id, err := strconv.ParseInt(idString, 10, 64)
 	if err != nil {
-		s.log.Error(err.Error())
+		s.log.Error(err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	equipment, err := s.u.Equipment().GetByID(int(id))
 	if err != nil {
-		s.log.Error(err.Error())
+		s.log.Error(err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 	c.HTML(http.StatusOK, "equipment.html", equipment)
+}
+
+func (s *Service) DeleteEquipment(c *gin.Context) {
+	c.Request.ParseForm()
+	paramID := c.Param("id")
+	id, err := strconv.ParseInt(paramID, 10, 64)
+	if err != nil {
+		s.log.Warn("handler DeleteEquipment couldn't parse the id parameter")
+	} else if s.u.Equipment().DeleteEquipmentByID(int(id)) != nil {
+		s.log.Error(err)
+	}
+	if title, ok := c.Request.Form["title"]; ok {
+		c.Redirect(http.StatusFound,
+			fmt.Sprintf("%s?title=%s", MainPageURL, url.PathEscape(title[0])))
+	} else {
+		c.Redirect(http.StatusFound, MainPageURL)
+	}
 }
 
 func (s *Service) BadRequest(c *gin.Context) {

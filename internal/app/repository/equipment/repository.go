@@ -12,4 +12,5 @@ type Repository interface {
 	GetByID(id int) (*ds.Equipment, error)
 	GetAllEquipments() ([]ds.Equipment, error)
 	SearchEquipmentsByTitle(title string) ([]ds.Equipment, error)
+	DeleteEquipmentByID(id int) error
 }

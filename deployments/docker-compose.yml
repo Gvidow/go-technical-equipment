@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: equipmentDB
+    environment:
+      POSTGRES_USER: artem
+      POSTGRES_PASSWORD: love
+      POSTGRES_DB: equipment
+    volumes:
+      - ../migrations:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432

@@ -20,6 +20,10 @@ func New(cfg *config.Config, s *service.Service, tmpl *template.Template) *gin.E
 
 func produceRouting(r *gin.Engine, s *service.Service) {
 	r.GET(service.MainPageURL, s.MainPage)
-	r.GET("/equipment/:id", s.Equipment)
+	eq := r.Group("/equipment")
+	{
+		eq.GET("/:id", s.Equipment)
+		eq.POST("/:id", s.DeleteEquipment)
+	}
 	r.NoRoute(s.BadRequest)
 }

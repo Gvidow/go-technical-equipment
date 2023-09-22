@@ -7,10 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gvidow/go-technical-equipment/internal/api"
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
+	"github.com/gvidow/go-technical-equipment/internal/app/dsn"
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/equipment"
 	"github.com/gvidow/go-technical-equipment/internal/app/usecase"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 	"github.com/gvidow/go-technical-equipment/logger"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Application struct {
@@ -20,12 +23,11 @@ type Application struct {
 }
 
 func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
-	// db, err := gorm.Open(postgres.Open(dsn.FromEnv()))
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// repo := equipment.NewRepository(db)
-	repo := equipment.NewStorageRepository()
+	db, err := gorm.Open(postgres.Open(dsn.FromEnv()))
+	if err != nil {
+		return nil, err
+	}
+	repo := equipment.NewRepository(db)
 	u := usecase.New(repo)
 	tmpl := template.Must(template.ParseGlob("templates/*"))
 	s := service.New(log, tmpl, u)

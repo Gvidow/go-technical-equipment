@@ -33,6 +33,10 @@ func (m modelEquipment) GetAllEquipments() ([]ds.Equipment, error) {
 	return m.data, nil
 }
 
+func (m modelEquipment) DeleteEquipmentByID(id int) error {
+	return nil
+}
+
 func NewStorageRepository() Repository {
 	return modelEquipment{
 		data: []ds.Equipment{
