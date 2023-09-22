@@ -1,0 +1,30 @@
+#section {
+    padding-top: 18px!important;
+    padding-bottom: 18px!important;
+    > div {
+        padding-top: 0px!important;
+        padding-bottom: 0px!important;
+    }
+}
+
+#board {
+    padding-top: 18px!important;
+}
+
+
+.equipment-div {
+    height: 225px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.equipment-div > img {
+    overflow: hidden;
+    object-fit: scale-down;
+    margin: 10px;
+}
+
+#logo {
+    margin-right: 10px;
+}

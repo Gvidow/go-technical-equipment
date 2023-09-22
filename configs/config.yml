@@ -1,0 +1,5 @@
+app:
+  server:
+    host: ""
+    port: 8080
+  mode: debug
