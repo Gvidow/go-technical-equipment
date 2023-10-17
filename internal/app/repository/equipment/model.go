@@ -36,36 +36,39 @@ func (m modelEquipment) GetAllEquipments() ([]ds.Equipment, error) {
 func (m modelEquipment) DeleteEquipmentByID(id int) error {
 	return nil
 }
+func (m modelEquipment) AddEquipment(*ds.Equipment) error {
+	return nil
+}
 
 func NewStorageRepository() Repository {
 	return modelEquipment{
 		data: []ds.Equipment{
 			{
-				ID:           1,
-				Title:        "Лазерная ручка",
-				Picture:      "/upload/equipment/lizer.png",
-				Description:  "Помогает вести лекцию",
-				Status:       "active",
-				Count:        0,
-				AvailableNow: 0,
+				ID:          1,
+				Title:       "Лазерная ручка",
+				Picture:     "/upload/equipment/lizer.png",
+				Description: "Помогает вести лекцию",
+				Status:      "active",
+				Count:       0,
+				// AvailableNow: 0,
 			},
 			{
-				ID:           2,
-				Title:        "Проектор",
-				Picture:      "/upload/equipment/projector.png",
-				Description:  "Очень полезное оборудование",
-				Status:       "active",
-				Count:        0,
-				AvailableNow: 0,
+				ID:          2,
+				Title:       "Проектор",
+				Picture:     "/upload/equipment/projector.png",
+				Description: "Очень полезное оборудование",
+				Status:      "active",
+				Count:       0,
+				// AvailableNow: 0,
 			},
 			{
-				ID:           3,
-				Title:        "Экран",
-				Picture:      "/upload/equipment/display.png",
-				Description:  "Уникальное оборудование",
-				Status:       "active",
-				Count:        0,
-				AvailableNow: 0,
+				ID:          3,
+				Title:       "Экран",
+				Picture:     "/upload/equipment/display.png",
+				Description: "Уникальное оборудование",
+				Status:      "active",
+				Count:       0,
+				// AvailableNow: 0,
 			},
 		},
 	}

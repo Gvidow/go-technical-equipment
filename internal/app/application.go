@@ -9,7 +9,7 @@ import (
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
 	"github.com/gvidow/go-technical-equipment/internal/app/dsn"
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/equipment"
-	"github.com/gvidow/go-technical-equipment/internal/app/usecase"
+	ucEquipment "github.com/gvidow/go-technical-equipment/internal/app/usecases/equipment"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 	"github.com/gvidow/go-technical-equipment/logger"
 	"gorm.io/driver/postgres"
@@ -28,7 +28,12 @@ func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 	repo := equipment.NewRepository(db)
-	u := usecase.New(repo)
+	u, err := ucEquipment.New(repo, ucEquipment.NewMinioConfig("http://localhost:9000",
+		"minio", "minio124").SetBucket("equipment"))
+	if err != nil {
+		return nil, fmt.Errorf("new equipment usecase: %w", err)
+	}
+
 	tmpl := template.Must(template.ParseGlob("templates/*"))
 	s := service.New(log, tmpl, u)
 	r := api.New(cfg, s, tmpl)

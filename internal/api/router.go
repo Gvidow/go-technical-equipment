@@ -11,19 +11,23 @@ import (
 func New(cfg *config.Config, s *service.Service, tmpl *template.Template) *gin.Engine {
 	gin.SetMode(cfg.Mode)
 	r := gin.Default()
-	r.SetHTMLTemplate(tmpl)
-	r.Static("/static", "./static")
 	r.Static("/upload", "./upload")
 	produceRouting(r, s)
 	return r
 }
 
 func produceRouting(r *gin.Engine, s *service.Service) {
-	r.GET(service.MainPageURL, s.MainPage)
-	eq := r.Group("/equipment")
+	api := r.Group("/api/v1/")
 	{
-		eq.GET("/:id", s.Equipment)
-		eq.POST("/:id", s.DeleteEquipment)
+		eq := api.Group("/equipment")
+		{
+			eq.GET("/list", s.GetListEquipments)
+			eq.GET("/get/:id", s.GetOneEquipment)
+			eq.POST("/add", s.AddNewEquipment)
+			eq.PUT("/edit/:id", s.EditEquipment)
+			eq.DELETE("/delete/:id", s.DeleteEquipment)
+			eq.POST("/last/:id", s.AddEquipmentInLastRequest)
+		}
 	}
-	r.NoRoute(s.BadRequest)
+	// r.NoRoute(s.BadRequest)
 }

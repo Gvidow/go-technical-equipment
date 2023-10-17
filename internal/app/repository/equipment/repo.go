@@ -36,3 +36,7 @@ func (er *equipmentRepo) DeleteEquipmentByID(id int) error {
 	db := er.db.Exec("UPDATE equipment SET status='delete' WHERE id = ?;", id)
 	return db.Error
 }
+
+func (er *equipmentRepo) AddEquipment(eq *ds.Equipment) error {
+	return er.db.Save(eq).Error
+}
