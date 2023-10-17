@@ -2,8 +2,9 @@ CREATE TABLE IF NOT EXISTS equipment (
     id serial PRIMARY KEY,
     title varchar(80) NOT NULL,
     description text,
-    picture varchar(50),
+    picture varchar(100),
     status varchar(8) NOT NULL,
+    count int NOT NULL,
     created_at timestamptz DEFAULT NOW(),
     updated_at timestamptz,
     CONSTRAINT equipment_status CHECK (status = 'active' OR status = 'delete')
@@ -17,7 +18,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS request (
     id serial PRIMARY KEY,
-    equipment_id int NOT NULL,
     status varchar(10) NOT NULL,
     moderator int NOT NULL,
     creator int NOT NULL,
