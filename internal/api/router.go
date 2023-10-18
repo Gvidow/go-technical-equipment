@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
+	"github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 )
 
@@ -17,6 +18,7 @@ func New(cfg *config.Config, s *service.Service, tmpl *template.Template) *gin.E
 }
 
 func produceRouting(r *gin.Engine, s *service.Service) {
+	r.Use(middlewares.UserRequest())
 	api := r.Group("/api/v1/")
 	{
 		eq := api.Group("/equipment")
