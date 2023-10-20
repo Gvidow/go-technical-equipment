@@ -6,7 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
+
+	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
 func (s *Service) GetListEquipments(c *gin.Context) {
@@ -27,18 +28,13 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 }
 
 func (s *Service) GetOneEquipment(c *gin.Context) {
-	idStr := c.Param("id")
-	if idStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в пути запроса отсутсвует id оборудования"})
-		return
-	}
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := FetchIdFromURLPath(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "id оборудования в пути запроса должен быть натуральным числом"})
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
 		return
 	}
 
-	equipment, err := s.u.GetOneEquipmentByID(int(id))
+	equipment, err := s.u.GetOneEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 		return
@@ -77,18 +73,13 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 }
 
 func (s *Service) EditEquipment(c *gin.Context) {
-	idStr := c.Param("id")
-	if idStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в пути запроса отсутсвует id оборудования"})
-		return
-	}
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := FetchIdFromURLPath(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "id оборудования в пути запроса должен быть натуральным числом"})
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
 		return
 	}
 
-	equipment, err := s.u.GetOneEquipmentByID(int(id))
+	equipment, err := s.u.GetOneEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 		return
@@ -144,18 +135,13 @@ func (s *Service) EditEquipment(c *gin.Context) {
 }
 
 func (s *Service) DeleteEquipment(c *gin.Context) {
-	idStr := c.Param("id")
-	if idStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в пути запроса отсутсвует id оборудования"})
-		return
-	}
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := FetchIdFromURLPath(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "id оборудования в пути запроса должен быть натуральным числом"})
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
 		return
 	}
 
-	err = s.u.DeleteEquipmentByID(int(id))
+	err = s.u.DeleteEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 	} else {
@@ -164,6 +150,25 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 }
 
 func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
-	r := c.Request.Context().Value(middlewares.ContextUserID)
+	r := c.Request.Context().Value(mw.ContextUserID)
+	if r == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для добавления оборудования в корзину нужно авторизоваться"})
+		return
+	}
+
+	userID, ok := r.(int)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для добавления оборудования в корзину нужно авторизоваться"})
+		return
+	}
+
+	equipmentID, err := FetchIdFromURLPath(c)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
+		return
+	}
+
+	_, _ = userID, equipmentID
+
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": fmt.Sprintf("call method from user with id=%v the add equipment", r)})
 }
