@@ -18,7 +18,7 @@ func New(cfg *config.Config, s *service.Service, tmpl *template.Template) *gin.E
 }
 
 func produceRouting(r *gin.Engine, s *service.Service) {
-	r.Use(middlewares.UserRequest())
+	r.Use(middlewares.Auth())
 	api := r.Group("/api/v1/")
 	{
 		eq := api.Group("/equipment")

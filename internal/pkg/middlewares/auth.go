@@ -8,13 +8,13 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-var Secret = []byte("equipment")
+var TokenJWTSecret = []byte("equipment")
 
 type userID string
 
 var ContextUserID userID = "user-id"
 
-func UserRequest() gin.HandlerFunc {
+func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tok := c.Request.Header.Get("Authorization")
 
@@ -22,7 +22,7 @@ func UserRequest() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("bad jwt token signing method: %s", token.Method.Alg())
 			}
-			return Secret, nil
+			return TokenJWTSecret, nil
 		})
 		if err != nil {
 			return
