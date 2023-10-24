@@ -29,7 +29,7 @@ func Auth() gin.HandlerFunc {
 		}
 
 		if claims, ok := tokenJWT.Claims.(jwt.MapClaims); ok && tokenJWT.Valid {
-			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), ContextUserID, claims["id"]))
+			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), ContextUserID, int(claims["id"].(float64))))
 		}
 	}
 }

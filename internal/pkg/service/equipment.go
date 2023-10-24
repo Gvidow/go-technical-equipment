@@ -1,29 +1,43 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/gvidow/go-technical-equipment/internal/app/ds"
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
 func (s *Service) GetListEquipments(c *gin.Context) {
+	r := c.Request.Context().Value(mw.ContextUserID)
+	var (
+		lastRequest *ds.Request
+		err         error
+	)
+
+	if userID, ok := r.(int); ok {
+		lastRequest, err = s.reqCase.GettingUserLastRequest(userID)
+	}
+
+	if err != nil {
+		s.log.Error(err)
+	}
+
 	title := c.Request.FormValue("title")
 	if title == "" {
-		equipments, err := s.u.GetListEquipments()
+		equipments, err := s.eqCase.GetListEquipments()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось получить список оборудования"})
 		}
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "body": equipments})
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "body": gin.H{"equipments": equipments, "last_request_id": lastRequest.Id()}})
 	} else {
-		equipments, err := s.u.GetListEquipmentsWithFilter(title)
+		equipments, err := s.eqCase.GetListEquipmentsWithFilter(title)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось получить список оборудования"})
 		}
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "body": equipments})
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "body": gin.H{"equipments": equipments, "last_request_id": lastRequest.Id()}})
 	}
 }
 
@@ -34,7 +48,7 @@ func (s *Service) GetOneEquipment(c *gin.Context) {
 		return
 	}
 
-	equipment, err := s.u.GetOneEquipmentByID(id)
+	equipment, err := s.eqCase.GetOneEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 		return
@@ -62,7 +76,7 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 	}
 	defer f.Close()
 
-	err = s.u.AddNewEquipment(c.Request.Context(), title, description, f, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
+	err = s.eqCase.AddNewEquipment(c.Request.Context(), title, description, f, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "bad request"})
@@ -79,7 +93,7 @@ func (s *Service) EditEquipment(c *gin.Context) {
 		return
 	}
 
-	equipment, err := s.u.GetOneEquipmentByID(id)
+	equipment, err := s.eqCase.GetOneEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 		return
@@ -107,7 +121,7 @@ func (s *Service) EditEquipment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "не удаётся прочитать файл"})
 	} else if err != http.ErrMissingFile {
 		defer file.Close()
-		fileURL, err := s.u.PutFileInMinio(c.Request.Context(), file, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
+		fileURL, err := s.eqCase.PutFileInMinio(c.Request.Context(), file, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err})
 		}
@@ -126,7 +140,7 @@ func (s *Service) EditEquipment(c *gin.Context) {
 		equipment.Count = count
 	}
 
-	err = s.u.EditEquipment(equipment)
+	err = s.eqCase.EditEquipment(equipment)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось изменить оборудование"})
 	} else {
@@ -141,7 +155,7 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 		return
 	}
 
-	err = s.u.DeleteEquipmentByID(id)
+	err = s.eqCase.DeleteEquipmentByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "оборудование не нашлось"})
 	} else {
@@ -164,11 +178,28 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 
 	equipmentID, err := FetchIdFromURLPath(c)
 	if err != nil {
+		s.log.Error(err)
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
 		return
 	}
 
-	_, _ = userID, equipmentID
+	req, err := s.reqCase.GettingUserLastRequest(userID)
+	if err != nil {
+		req, err = s.reqCase.CreateDraftRequest(userID)
+		if err != nil {
+			s.log.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось создать заявку"})
+			return
+		}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": fmt.Sprintf("call method from user with id=%v the add equipment", r)})
+	s.log.Sugar().Infof("add equipment(%d) in request(%d)", equipmentID, req.Id())
+
+	err = s.orCase.AddEquipmentInRequest(equipmentID, req.Id())
+	if err != nil {
+		s.log.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось добавить оборудование в заявку"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }

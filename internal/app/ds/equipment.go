@@ -1,7 +1,7 @@
 package ds
 
 type Equipment struct {
-	ID          int `gorm: "primarykey"`
+	ID          int `gorm:"primarykey"`
 	Title       string
 	Picture     string
 	Description string

@@ -9,7 +9,11 @@ import (
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
 	"github.com/gvidow/go-technical-equipment/internal/app/dsn"
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/equipment"
+	orRepo "github.com/gvidow/go-technical-equipment/internal/app/repository/order"
+	reqRepo "github.com/gvidow/go-technical-equipment/internal/app/repository/request"
 	ucEquipment "github.com/gvidow/go-technical-equipment/internal/app/usecases/equipment"
+	orCase "github.com/gvidow/go-technical-equipment/internal/app/usecases/order"
+	reqCase "github.com/gvidow/go-technical-equipment/internal/app/usecases/request"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 	"github.com/gvidow/go-technical-equipment/logger"
 	"gorm.io/driver/postgres"
@@ -35,7 +39,7 @@ func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
 	}
 
 	tmpl := template.Must(template.ParseGlob("templates/*"))
-	s := service.New(log, tmpl, u)
+	s := service.New(log, u, reqCase.NewUsecase(reqRepo.NewRepository(db)), orCase.NewUsecase(orRepo.NewRepository(db)))
 	r := api.New(cfg, s, tmpl)
 
 	return &Application{

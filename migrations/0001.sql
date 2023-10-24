@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS request (
     status varchar(10) NOT NULL,
     moderator int NOT NULL,
     creator int NOT NULL,
-    created_at timestamptz,
+    created_at timestamptz DEFAULT NOW(),
     formated_at timestamptz,
     completed_at timestamptz,
     CONSTRAINT request_fk_moderator FOREIGN KEY (moderator) REFERENCES users (id) ON DELETE CASCADE,
