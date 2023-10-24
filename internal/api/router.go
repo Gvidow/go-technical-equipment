@@ -30,6 +30,16 @@ func produceRouting(r *gin.Engine, s *service.Service) {
 			eq.DELETE("/delete/:id", s.DeleteEquipment)
 			eq.POST("/last/:id", s.AddEquipmentInLastRequest)
 		}
+
+		req := api.Group("/request")
+		{
+			req.GET("/list", s.ListRequest)
+			req.GET("/get/:id", s.ReceivingRequest)
+			req.PUT("/edit/:id", s.EditRequest)
+			req.PUT("/status/change/creator/:id", s.StatusChangeByCreator)
+			req.PUT("/status/change/moderator/:id", s.StatusChangeByCreator)
+			req.DELETE("/delete/:id", s.DropRequest)
+		}
 	}
 	// r.NoRoute(s.BadRequest)
 }
