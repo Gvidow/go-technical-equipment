@@ -14,4 +14,5 @@ type Repository interface {
 	SearchEquipmentsByTitle(title string) ([]ds.Equipment, error)
 	DeleteEquipmentByID(id int) error
 	AddEquipment(eq *ds.Equipment) error
+	ViewFeedEquipment(feedCfg ds.FeedEquipmentConfig) ([]ds.Equipment, error)
 }

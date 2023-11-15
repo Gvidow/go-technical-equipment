@@ -41,6 +41,36 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 	}
 }
 
+func (s *Service) FeedEquipment(c *gin.Context) {
+	r := c.Request.Context().Value(mw.ContextUserID)
+	var (
+		lastRequest *ds.Request
+		err         error
+	)
+
+	if userID, ok := r.(int); ok {
+		lastRequest, err = s.reqCase.GettingUserLastRequest(userID)
+	}
+
+	if err != nil {
+		s.log.Error(err)
+	}
+
+	cfg, err := encodeFeedConfig(c.Request.URL)
+	if err != nil {
+		s.log.Info(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "ошибка в указании параметров запроса"})
+		return
+	}
+	equipments, err := s.eqCase.ViewFeedEquipment(cfg)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось получить список оборудования"})
+		s.log.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "body": gin.H{"equipments": equipments, "last_request_id": lastRequest.Id()}})
+}
+
 func (s *Service) GetOneEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
 	if err != nil {

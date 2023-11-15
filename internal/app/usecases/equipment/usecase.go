@@ -65,6 +65,10 @@ func (u *Usecase) GetListEquipments() ([]ds.Equipment, error) {
 	return u.repo.GetAllEquipments()
 }
 
+func (u *Usecase) ViewFeedEquipment(feedCfg ds.FeedEquipmentConfig) ([]ds.Equipment, error) {
+	return u.repo.ViewFeedEquipment(feedCfg)
+}
+
 func (u *Usecase) GetListEquipmentsWithFilter(title string) ([]ds.Equipment, error) {
 	return u.repo.SearchEquipmentsByTitle(title)
 }

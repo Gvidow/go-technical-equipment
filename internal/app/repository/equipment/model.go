@@ -40,7 +40,7 @@ func (m modelEquipment) AddEquipment(*ds.Equipment) error {
 	return nil
 }
 
-func NewStorageRepository() Repository {
+func NewStorageRepository() modelEquipment {
 	return modelEquipment{
 		data: []ds.Equipment{
 			{

@@ -5,6 +5,9 @@ import (
 	"html/template"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"github.com/gvidow/go-technical-equipment/internal/api"
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
 	"github.com/gvidow/go-technical-equipment/internal/app/dsn"
@@ -16,8 +19,6 @@ import (
 	reqCase "github.com/gvidow/go-technical-equipment/internal/app/usecases/request"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 	"github.com/gvidow/go-technical-equipment/logger"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 type Application struct {

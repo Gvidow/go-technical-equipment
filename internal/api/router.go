@@ -23,7 +23,8 @@ func produceRouting(r *gin.Engine, s *service.Service) {
 	{
 		eq := api.Group("/equipment")
 		{
-			eq.GET("/list", s.GetListEquipments)
+			eq.GET("/list/active", s.GetListEquipments)
+			eq.GET("/list", s.FeedEquipment)
 			eq.GET("/get/:id", s.GetOneEquipment)
 			eq.POST("/add", s.AddNewEquipment)
 			eq.PUT("/edit/:id", s.EditEquipment)
@@ -37,7 +38,7 @@ func produceRouting(r *gin.Engine, s *service.Service) {
 			req.GET("/get/:id", s.ReceivingRequest)
 			req.PUT("/edit/:id", s.EditRequest)
 			req.PUT("/status/change/creator/:id", s.StatusChangeByCreator)
-			req.PUT("/status/change/moderator/:id", s.StatusChangeByCreator)
+			req.PUT("/status/change/moderator/:id", s.StatusChangeByModerator)
 			req.DELETE("/delete/:id", s.DropRequest)
 		}
 	}
