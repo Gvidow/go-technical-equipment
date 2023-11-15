@@ -42,13 +42,13 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 }
 
 func (s *Service) FeedEquipment(c *gin.Context) {
-	r := c.Request.Context().Value(mw.ContextUserID)
+	userID, ok := c.Request.Context().Value(mw.ContextUserID).(int)
 	var (
 		lastRequest *ds.Request
 		err         error
 	)
 
-	if userID, ok := r.(int); ok {
+	if ok {
 		lastRequest, err = s.reqCase.GettingUserLastRequest(userID)
 	}
 
@@ -194,13 +194,7 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 }
 
 func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
-	r := c.Request.Context().Value(mw.ContextUserID)
-	if r == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для добавления оборудования в корзину нужно авторизоваться"})
-		return
-	}
-
-	userID, ok := r.(int)
+	userID, ok := c.Request.Context().Value(mw.ContextUserID).(int)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для добавления оборудования в корзину нужно авторизоваться"})
 		return

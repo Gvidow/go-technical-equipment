@@ -17,7 +17,7 @@ type requestRepo struct {
 
 func (r *requestRepo) GetLastEnteredRequestByUserID(userID int) (*ds.Request, error) {
 	request := &ds.Request{}
-	err := r.db.First(request, "creator = ?", userID).First(request, "status = ?", "entered").Error
+	err := r.db.Where("status = 'entered'").First(request, "creator = ?", userID).Error
 	if err != nil {
 		return nil, fmt.Errorf("get last entered request: %w", err)
 	}
