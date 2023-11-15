@@ -25,3 +25,11 @@ func (u *Usecase) CreateDraftRequest(userID int) (*ds.Request, error) {
 	}
 	return u.repo.SaveRequest(request)
 }
+
+func (u *Usecase) DropRequest(requestID int) error {
+	return u.repo.DeleteRequest(requestID)
+}
+
+func (u *Usecase) ChangeStatusRequest(requestID int, newStatus, oldStatusRequire string) error {
+	return u.repo.UpdateRequestStatus(requestID, newStatus, oldStatusRequire)
+}

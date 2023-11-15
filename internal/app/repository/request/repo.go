@@ -31,3 +31,20 @@ func (r *requestRepo) SaveRequest(req *ds.Request) (*ds.Request, error) {
 	}
 	return req, nil
 }
+
+func (r *requestRepo) DeleteRequest(requestID int) error {
+	db := r.db.Model(&ds.Request{}).Where("id = ?", requestID).Update("status", "deleted")
+	if db.Error != nil {
+		return fmt.Errorf("delete request from repository: %w", db.Error)
+	}
+	return nil
+}
+
+func (r *requestRepo) UpdateRequestStatus(requestID int, newStatus, oldStatusRequire string) error {
+	db := r.db.Model(&ds.Request{}).Where("id = ?", requestID).Update("status", newStatus)
+	if db.Error != nil {
+		return fmt.Errorf("update status request on repository: %w", db.Error)
+	}
+	fmt.Println("ffdfdfDFd", db.Statement.SQL.String())
+	return nil
+}
