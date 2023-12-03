@@ -57,7 +57,7 @@ func (r *requestRepo) GetRequestByID(requestID int) (*ds.Request, error) {
 }
 
 func (r *requestRepo) UpdateRequest(requestID int, changes map[string]any) error {
-	if err := r.db.Model(&ds.Request{}).Select("moderator", "creator").Updates(changes).Error; err != nil {
+	if err := r.db.Model(&ds.Request{ID: requestID}).Select("moderator", "creator").Updates(changes).Error; err != nil {
 		return fmt.Errorf("request update %v error: %w", changes, err)
 	}
 	return nil
@@ -102,6 +102,5 @@ func (r *requestRepo) RevealEquipments(request *ds.Request) error {
 	if err != nil {
 		return fmt.Errorf("select equipments in request: %w", err)
 	}
-	// fmt.Println(c)
 	return nil
 }
