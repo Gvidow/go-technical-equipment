@@ -45,6 +45,63 @@ func (r *requestRepo) UpdateRequestStatus(requestID int, newStatus, oldStatusReq
 	if db.Error != nil {
 		return fmt.Errorf("update status request on repository: %w", db.Error)
 	}
-	fmt.Println("ffdfdfDFd", db.Statement.SQL.String())
+	return nil
+}
+
+func (r *requestRepo) GetRequestByID(requestID int) (*ds.Request, error) {
+	req := &ds.Request{ID: requestID}
+	if err := r.db.Find(req).Error; err != nil {
+		return nil, fmt.Errorf("get request by id from storage: %w", err)
+	}
+	return req, nil
+}
+
+func (r *requestRepo) UpdateRequest(requestID int, changes map[string]any) error {
+	if err := r.db.Model(&ds.Request{}).Select("moderator", "creator").Updates(changes).Error; err != nil {
+		return fmt.Errorf("request update %v error: %w", changes, err)
+	}
+	return nil
+}
+
+func (r *requestRepo) SaveUpdatedRequest(req *ds.Request) error {
+	if err := r.db.Omit("formated_at", "completed_at").Save(req).Error; err != nil {
+		return fmt.Errorf("save updated request: %w", err)
+	}
+	return nil
+}
+
+func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Request, error) {
+	feed := make([]ds.Request, 0)
+
+	db := r.db
+	if creator, ok := cfg.CreatorFilter(); ok {
+		db = db.Where("creator = ?", creator)
+	}
+	if moderator, ok := cfg.ModeratorFilter(); ok {
+		db = db.Where("moderator = ?", moderator)
+	}
+	if status, ok := cfg.StatusFilter(); ok {
+		db = db.Where("status = ?", status)
+	}
+	if createdAt, ok := cfg.CreatedAtFilter(); ok {
+		db = db.Where("created_at = ?", createdAt)
+	}
+	if completedAt, ok := cfg.CreatedAtFilter(); ok {
+		db = db.Where("completed_at = ?", completedAt)
+	}
+	if formatedAt, ok := cfg.CreatedAtFilter(); ok {
+		db = db.Where("formated_at = ?", formatedAt)
+	}
+	err := db.Find(&feed).Error
+	return feed, err
+}
+
+func (r *requestRepo) RevealEquipments(request *ds.Request) error {
+	db := r.db.Raw("SELECT e.id, e.title, e.description, e.picture, e.status, o.count FROM request INNER JOIN orders o ON request.id = o.request_id INNER JOIN equipment e ON o.equipment_id = e.id WHERE request.id = 40;")
+	err := db.Scan(&request.Equipments).Error
+	if err != nil {
+		return fmt.Errorf("select equipments in request: %w", err)
+	}
+	// fmt.Println(c)
 	return nil
 }

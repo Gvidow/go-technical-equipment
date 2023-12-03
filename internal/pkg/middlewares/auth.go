@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -32,4 +33,14 @@ func Auth() gin.HandlerFunc {
 			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), ContextUserID, int(claims["id"].(float64))))
 		}
 	}
+}
+
+func RequireAuth() gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		user := c.Request.Context().Value(ContextUserID)
+		if user == nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "требуется авторизация"})
+			c.Abort()
+		}
+	})
 }

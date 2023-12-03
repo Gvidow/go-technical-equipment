@@ -19,3 +19,11 @@ func (u *Usecase) AddEquipmentInRequest(equipmentID, requestID int) error {
 		RequestID:   requestID,
 	})
 }
+
+func (u *Usecase) DeleteEquipmentFromRequest(equipmentID, requestID int) error {
+	return u.repo.DropOrder(ds.Order{EquipmentID: equipmentID, RequestID: requestID})
+}
+
+func (u *Usecase) EditCountEquipmentsInRequest(equipmentID, requestID, newCount int) error {
+	return u.repo.EditCountEquipmentInOrder(ds.Order{EquipmentID: equipmentID, RequestID: requestID}, newCount)
+}

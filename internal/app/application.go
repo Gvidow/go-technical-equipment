@@ -14,6 +14,7 @@ import (
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/equipment"
 	orRepo "github.com/gvidow/go-technical-equipment/internal/app/repository/order"
 	reqRepo "github.com/gvidow/go-technical-equipment/internal/app/repository/request"
+	userRepo "github.com/gvidow/go-technical-equipment/internal/app/repository/user"
 	ucEquipment "github.com/gvidow/go-technical-equipment/internal/app/usecases/equipment"
 	orCase "github.com/gvidow/go-technical-equipment/internal/app/usecases/order"
 	reqCase "github.com/gvidow/go-technical-equipment/internal/app/usecases/request"
@@ -40,7 +41,7 @@ func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
 	}
 
 	tmpl := template.Must(template.ParseGlob("templates/*"))
-	s := service.New(log, u, reqCase.NewUsecase(reqRepo.NewRepository(db)), orCase.NewUsecase(orRepo.NewRepository(db)))
+	s := service.New(log, u, reqCase.NewUsecase(reqRepo.NewRepository(db), userRepo.NewUserRepo(db)), orCase.NewUsecase(orRepo.NewRepository(db)))
 	r := api.New(cfg, s, tmpl)
 
 	return &Application{

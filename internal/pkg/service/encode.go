@@ -42,3 +42,45 @@ func encodeFeedConfig(u *url.URL) (ds.FeedEquipmentConfig, error) {
 	}
 	return cfg, nil
 }
+
+func encodeFeedRequestConfig(u *url.URL) (ds.FeedRequestConfig, error) {
+	cfg := ds.FeedRequestConfig{}
+	var err error
+	if u.Query().Has("creator") {
+		err = cfg.SetCreatorFilter(u.Query().Get("creator"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+
+	if u.Query().Has("moderator") {
+		err = cfg.SetModeratorFilter(u.Query().Get("moderator"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+
+	if u.Query().Has("status") {
+		cfg.SetStatusFilter(u.Query().Get("status"))
+	}
+
+	if u.Query().Has("createdAt") {
+		err = cfg.SetCreatedFilter(u.Query().Get("createdAt"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+	if u.Query().Has("formatedAt") {
+		err = cfg.SetFormatedFilter(u.Query().Get("formatedAt"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+	if u.Query().Has("completedAt") {
+		err = cfg.SetCompletedFilter(u.Query().Get("completedAt"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+	return cfg, nil
+}
