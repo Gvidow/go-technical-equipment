@@ -39,8 +39,12 @@ func (er *equipmentRepo) DeleteEquipmentByID(id int) error {
 	return db.Error
 }
 
-func (er *equipmentRepo) AddEquipment(eq *ds.Equipment) error {
-	return er.db.Save(eq).Error
+func (er *equipmentRepo) AddEquipment(eq *ds.Equipment) (*ds.Equipment, error) {
+	err := er.db.Save(eq).Scan(eq).Error
+	if err != nil {
+		return nil, fmt.Errorf("add equipment in storage: %w", err)
+	}
+	return eq, err
 }
 
 func (er *equipmentRepo) ViewFeedEquipment(cfg ds.FeedEquipmentConfig) ([]ds.Equipment, error) {

@@ -97,7 +97,7 @@ func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Reque
 }
 
 func (r *requestRepo) RevealEquipments(request *ds.Request) error {
-	db := r.db.Raw("SELECT e.id, e.title, e.description, e.picture, e.status, o.count FROM request INNER JOIN orders o ON request.id = o.request_id INNER JOIN equipment e ON o.equipment_id = e.id WHERE request.id = 40;")
+	db := r.db.Raw("SELECT e.id, e.title, e.description, e.picture, e.status, o.count FROM request INNER JOIN orders o ON request.id = o.request_id INNER JOIN equipment e ON o.equipment_id = e.id WHERE request.id = ?;", request.ID)
 	err := db.Scan(&request.Equipments).Error
 	if err != nil {
 		return fmt.Errorf("select equipments in request: %w", err)

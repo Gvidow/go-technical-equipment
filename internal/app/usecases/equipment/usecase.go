@@ -44,21 +44,24 @@ func New(repo equipment.Repository, cfg *minioConfig) (*Usecase, error) {
 }
 
 func (u *Usecase) AddNewEquipment(ctx context.Context, title, description string, body io.Reader,
-	mimeType string, size int64, pictureName string) error {
+	mimeType string, size int64, pictureName string) (int, error) {
 
 	fileURL, err := u.PutFileInMinio(ctx, body, mimeType, size, pictureName)
 	if err != nil {
-		return fmt.Errorf("put file in minio: %w", err)
+		return 0, fmt.Errorf("put file in minio: %w", err)
 	}
 
-	err = u.repo.AddEquipment(&ds.Equipment{
+	eq, err := u.repo.AddEquipment(&ds.Equipment{
 		Title:       title,
 		Description: description,
 		Picture:     fileURL,
 		Status:      "active",
 		Count:       1,
 	})
-	return err
+	if err != nil {
+		return 0, fmt.Errorf("add equipment: %w", err)
+	}
+	return eq.ID, nil
 }
 
 func (u *Usecase) GetListEquipments() ([]ds.Equipment, error) {
@@ -86,7 +89,8 @@ func (u *Usecase) DeleteEquipmentByID(id int) error {
 }
 
 func (u *Usecase) EditEquipment(equipment *ds.Equipment) error {
-	return u.repo.AddEquipment(equipment)
+	_, err := u.repo.AddEquipment(equipment)
+	return err
 }
 
 func (u *Usecase) PutFileInMinio(ctx context.Context, body io.Reader, mimeType string, size int64, pictureName string) (string, error) {

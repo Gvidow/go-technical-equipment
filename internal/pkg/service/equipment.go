@@ -106,14 +106,14 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 	}
 	defer f.Close()
 
-	err = s.eqCase.AddNewEquipment(c.Request.Context(), title, description, f, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
+	newID, err := s.eqCase.AddNewEquipment(c.Request.Context(), title, description, f, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "bad request"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": "ok"})
+	c.JSON(http.StatusCreated, gin.H{"status": "ok", "body": map[string]int{"id": newID}})
 }
 
 func (s *Service) EditEquipment(c *gin.Context) {
