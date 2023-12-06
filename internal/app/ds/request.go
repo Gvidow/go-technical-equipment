@@ -32,12 +32,14 @@ func (r *Request) TableName() string {
 }
 
 type FeedRequestConfig struct {
-	creator      int
-	moderator    int
-	status       string
-	created_at   time.Time
-	formated_at  time.Time
-	completed_at time.Time
+	creator        int
+	moderator      int
+	status         string
+	createdAt      time.Time
+	formatedAt     time.Time
+	formatedAfter  time.Time
+	formatedBefore time.Time
+	completedAt    time.Time
 }
 
 func (f *FeedRequestConfig) SetCreatorFilter(creator string) error {
@@ -67,7 +69,7 @@ func (f *FeedRequestConfig) SetCreatedFilter(date string) error {
 	if err != nil {
 		return err
 	}
-	f.created_at = t
+	f.createdAt = t
 	return nil
 }
 
@@ -76,7 +78,7 @@ func (f *FeedRequestConfig) SetCompletedFilter(date string) error {
 	if err != nil {
 		return err
 	}
-	f.completed_at = t
+	f.completedAt = t
 	return nil
 }
 
@@ -85,7 +87,7 @@ func (f *FeedRequestConfig) SetFormatedFilter(date string) error {
 	if err != nil {
 		return err
 	}
-	f.formated_at = t
+	f.formatedAt = t
 	return nil
 }
 
@@ -111,21 +113,53 @@ func (f *FeedRequestConfig) StatusFilter() (string, bool) {
 }
 
 func (f *FeedRequestConfig) CreatedAtFilter() (time.Time, bool) {
-	if f.created_at == _emptyTime {
+	if f.createdAt == _emptyTime {
 		return _emptyTime, false
 	}
-	return f.created_at, true
+	return f.createdAt, true
 }
 
 func (f *FeedRequestConfig) FormatedAtFilter() (time.Time, bool) {
-	if f.formated_at == _emptyTime {
+	if f.formatedAt == _emptyTime {
 		return _emptyTime, false
 	}
-	return f.formated_at, true
+	return f.formatedAt, true
 }
 func (f *FeedRequestConfig) CompletedAtFilter() (time.Time, bool) {
-	if f.completed_at == _emptyTime {
+	if f.completedAt == _emptyTime {
 		return _emptyTime, false
 	}
-	return f.completed_at, true
+	return f.completedAt, true
+}
+
+func (f *FeedRequestConfig) SetFormatedAfter(date string) error {
+	t, err := time.Parse("02.01.2006", date)
+	if err != nil {
+		return err
+	}
+	f.formatedAfter = t
+	return nil
+}
+
+func (f *FeedRequestConfig) SetFormatedBefore(date string) error {
+	t, err := time.Parse("02.01.2006", date)
+	if err != nil {
+		return err
+	}
+	f.formatedBefore = t
+	return nil
+}
+
+func (f *FeedRequestConfig) FormatedAfterFilter() (time.Time, bool) {
+	if f.formatedAfter == _emptyTime {
+		return _emptyTime, false
+	}
+	return f.formatedAfter, true
+}
+
+func (f *FeedRequestConfig) FormatedBeforeFilter() (time.Time, bool) {
+	if f.formatedBefore == _emptyTime {
+		return _emptyTime, false
+	}
+	return f.formatedBefore, true
 }

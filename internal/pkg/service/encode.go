@@ -76,6 +76,18 @@ func encodeFeedRequestConfig(u *url.URL) (ds.FeedRequestConfig, error) {
 			return cfg, err
 		}
 	}
+	if u.Query().Has("formatedAfter") {
+		err = cfg.SetFormatedAfter(u.Query().Get("formatedAfter"))
+		if err != nil {
+			return cfg, err
+		}
+	}
+	if u.Query().Has("formatedBefore") {
+		err = cfg.SetFormatedBefore(u.Query().Get("formatedBefore"))
+		if err != nil {
+			return cfg, err
+		}
+	}
 	if u.Query().Has("completedAt") {
 		err = cfg.SetCompletedFilter(u.Query().Get("completedAt"))
 		if err != nil {

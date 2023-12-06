@@ -92,6 +92,12 @@ func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Reque
 	if formatedAt, ok := cfg.CreatedAtFilter(); ok {
 		db = db.Where("formated_at = ?", formatedAt)
 	}
+	if formatedAfter, ok := cfg.FormatedAfterFilter(); ok {
+		db = db.Where("formated_at > ?", formatedAfter)
+	}
+	if formatedBefore, ok := cfg.FormatedBeforeFilter(); ok {
+		db = db.Where("formated_at < ?", formatedBefore)
+	}
 	err := db.Find(&feed).Error
 	return feed, err
 }
