@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
 	"github.com/gvidow/go-technical-equipment/internal/app/usecases/request"
-	"github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
+	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
 func (s *Service) ListRequest(c *gin.Context) {
@@ -68,7 +68,7 @@ func (s *Service) EditRequest(c *gin.Context) {
 }
 
 func (s *Service) StatusChangeByCreator(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для изменения статуса заявки вы должны авторизоваться по модератором"})
 		return
@@ -91,7 +91,7 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 		return
 	}
 
-	err = s.reqCase.ChangeStatusRequest(userID, requestID, newStatus.Status, ds.RegularUser)
+	err = s.reqCase.ChangeStatusRequest(user.UserID, requestID, newStatus.Status, ds.RegularUser)
 	var message string
 	var status int
 	switch err {
@@ -112,7 +112,7 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 }
 
 func (s *Service) StatusChangeByModerator(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для изменения статуса заявки вы должны авторизоваться по модератором"})
 		return
@@ -135,7 +135,7 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 		return
 	}
 
-	err = s.reqCase.ChangeStatusRequest(userID, requestID, newStatus.Status, ds.Moderator)
+	err = s.reqCase.ChangeStatusRequest(user.UserID, requestID, newStatus.Status, ds.Moderator)
 	var message string
 	var status int
 	switch err {

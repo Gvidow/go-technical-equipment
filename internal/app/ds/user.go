@@ -4,10 +4,26 @@ type User struct {
 	ID       int `gorm:"primary_key"`
 	Username string
 	Role     string
+	Email    string
+	Password string
+	role     Role
 }
 
-func (u User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
+}
+
+func (u *User) GetRole() Role {
+	if u.role != 0 {
+		return u.role
+	}
+	u.role = ParseRole(u.Role)
+	return u.role
+}
+
+func (u *User) SetRole(r Role) {
+	u.role = r
+	u.Role = r.String()
 }
 
 type Role uint8
@@ -29,10 +45,6 @@ const (
 	RegularUser
 	Moderator
 )
-
-func (u User) GetRole() Role {
-	return ParseRole(u.Role)
-}
 
 func ParseRole(role string) Role {
 	switch role {
