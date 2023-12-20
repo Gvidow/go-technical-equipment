@@ -44,13 +44,14 @@ func produceRouting(r *gin.Engine, s *service.Service, cfg *config.Config, bl *r
 
 		req := api.Group("/request")
 		{
-			req.GET("/list", s.ListRequest)
 			req.GET("/get/:id", s.GetRequest)
 			req.PUT("/edit/:id", s.EditRequest)
 			req.DELETE("/delete/:id", s.DropRequest)
 
+			req.Use(middlewares.RequireAuth()).GET("/list", s.ListRequest)
+
 			req.Group("/status/change/creator/:id").
-				Use(middlewares.RequireAuth(ds.RegularUser, ds.Moderator)).
+				Use(middlewares.RequireAuth(ds.RegularUser)).
 				PUT("/", s.StatusChangeByCreator)
 
 			req.Group("/status/change/moderator/:id").

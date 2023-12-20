@@ -42,6 +42,10 @@ type FeedRequestConfig struct {
 	completedAt    time.Time
 }
 
+func (f *FeedRequestConfig) SetCreatorFilterInt(creator int) {
+	f.creator = creator
+}
+
 func (f *FeedRequestConfig) SetCreatorFilter(creator string) error {
 	id, err := strconv.ParseInt(creator, 10, 64)
 	if err != nil {

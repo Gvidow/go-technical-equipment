@@ -10,24 +10,6 @@ import (
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
-type Res struct {
-	K   int
-	Err error
-	F   string
-}
-
-// ShowAccount godoc
-// @Summary      Show an account
-// @Description  get string by ID
-// @Tags         accounts
-// @Accept       json
-// @Produce      json
-// @Param        id   path      int  true  "Account ID"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  struct{F int}
-// @Failure      500  {object}  Res
-// @Router       /accounts/{id} [get]
 func (s *Service) GetListEquipments(c *gin.Context) {
 	r := c.Request.Context().Value(mw.ContextUser)
 	var (

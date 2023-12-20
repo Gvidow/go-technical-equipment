@@ -17,6 +17,10 @@ func (s *Service) ListRequest(c *gin.Context) {
 		return
 	}
 
+	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
+	if user.Role == ds.RegularUser {
+		feedCfg.SetCreatorFilterInt(user.UserID)
+	}
 	feed, err := s.reqCase.GetFeedRequests(feedCfg)
 	if err != nil {
 		s.log.Error(err)

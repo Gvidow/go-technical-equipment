@@ -50,6 +50,18 @@ func (s *Service) Login(c *gin.Context) {
 	})
 }
 
+// ShowAccount godoc
+// @Summary      Registery
+// @Description  registered new user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        credentials   body      ds.Credentials  true  "Credentials"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
+// @Router       /auth/signup [post]
 func (s *Service) Signup(c *gin.Context) {
 	cred := &ds.Credentials{}
 	err := json.NewDecoder(c.Request.Body).Decode(cred)
@@ -74,6 +86,18 @@ func (s *Service) Signup(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "регистрация прошла успешно"})
 }
 
+// ShowAccount godoc
+// @Summary      Authentificated
+// @Description  Login user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        loginParam   body      loginReq  true  "Credentials"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  any{Body int}
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
+// @Router       /auth/login [post]
 func (s *Service) Logout(c *gin.Context) {
 	err := s.authCase.Logout(c, c.GetHeader(s.cfg.JWT.Header), s.cfg.JWT)
 	switch err {
