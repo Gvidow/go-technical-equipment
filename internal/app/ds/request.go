@@ -10,11 +10,11 @@ var _emptyTime = time.Time{}
 type Request struct {
 	ID               int         `json:"id" gorm:"primary_key"`
 	Status           string      `json:"status"`
-	Moderator        int         `json:"moderator,omitempty"`
-	Creator          int         `json:"creator,omitempty"`
-	CreatedAt        *time.Time  `gorm:"created_at;" json:"created_at,omitempty"`
-	FormatedAt       *time.Time  `gorm:"formated_at;null" json:"formated_at,omitempty"`
-	CompletedAt      *time.Time  `gorm:"completed_at;null" json:"completed_at,omitempty"`
+	Moderator        int         `json:"-"`
+	Creator          int         `json:"-"`
+	CreatedAt        *time.Time  `gorm:"created_at;" json:"created_at"`
+	FormatedAt       *time.Time  `gorm:"formated_at;null" json:"formated_at"`
+	CompletedAt      *time.Time  `gorm:"completed_at;null" json:"completed_at"`
 	CreatorProfile   *User       `gorm:"foreignKey:creator;references:id" json:"creator_profile,omitempty"`
 	ModeratorProfile *User       `gorm:"foreignKey:moderator;references:id" json:"moderator_profile,omitempty"`
 	Equipments       []Equipment `gorm:"many2many:orders;" json:"equipments,omitempty"`
