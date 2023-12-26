@@ -3,12 +3,12 @@ package ds
 import "time"
 
 type Equipment struct {
-	ID          int `gorm:"primarykey"`
-	Title       string
-	Picture     string
-	Description string
-	Status      string
-	Count       int
+	ID          int    `json:"id" gorm:"primarykey"`
+	Title       string `json:"title"`
+	Picture     string `json:"picture"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	Count       int    `json:"count"`
 }
 
 type equipmentStatus uint

@@ -50,7 +50,7 @@ func (r *requestRepo) UpdateRequestStatus(requestID int, newStatus, oldStatusReq
 
 func (r *requestRepo) GetRequestByID(requestID int) (*ds.Request, error) {
 	req := &ds.Request{ID: requestID}
-	if err := r.db.Find(req).Error; err != nil {
+	if err := r.db.First(req).Error; err != nil {
 		return nil, fmt.Errorf("get request by id from storage: %w", err)
 	}
 	return req, nil

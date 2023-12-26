@@ -8,8 +8,8 @@ import (
 var _emptyTime = time.Time{}
 
 type Request struct {
-	ID               int `gorm:"primary_key"`
-	Status           string
+	ID               int         `json:"id" gorm:"primary_key"`
+	Status           string      `json:"status"`
 	Moderator        int         `json:"moderator,omitempty"`
 	Creator          int         `json:"creator,omitempty"`
 	CreatedAt        *time.Time  `gorm:"created_at;" json:",omitempty"`
