@@ -12,12 +12,12 @@ type Request struct {
 	Status           string      `json:"status"`
 	Moderator        int         `json:"moderator,omitempty"`
 	Creator          int         `json:"creator,omitempty"`
-	CreatedAt        *time.Time  `gorm:"created_at;" json:",omitempty"`
-	FormatedAt       *time.Time  `gorm:"formated_at;null" json:",omitempty"`
-	CompletedAt      *time.Time  `gorm:"completed_at;null" json:",omitempty"`
-	CreatorProfile   *User       `gorm:"-" json:",omitempty"`
-	ModeratorProfile *User       `gorm:"-" json:",omitempty"`
-	Equipments       []Equipment `gorm:"-" json:",omitempty"`
+	CreatedAt        *time.Time  `gorm:"created_at;" json:"created_at,omitempty"`
+	FormatedAt       *time.Time  `gorm:"formated_at;null" json:"formated_at,omitempty"`
+	CompletedAt      *time.Time  `gorm:"completed_at;null" json:"completed_at,omitempty"`
+	CreatorProfile   *User       `gorm:"-" json:"creator_profile,omitempty"`
+	ModeratorProfile *User       `gorm:"-" json:"moderator_profile,omitempty"`
+	Equipments       []Equipment `gorm:"-" json:"equipments,omitempty"`
 }
 
 func (r *Request) Id() int {
