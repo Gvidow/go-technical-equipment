@@ -1,0 +1,1 @@
+ALTER TABLE request ALTER COLUMN moderator DROP NOT NULL;
