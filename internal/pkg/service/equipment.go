@@ -12,14 +12,14 @@ import (
 )
 
 func (s *Service) GetListEquipments(c *gin.Context) {
-	r := c.Request.Context().Value(mw.ContextUserID)
+	r := c.Request.Context().Value(mw.ContextUser)
 	var (
 		lastRequest *ds.Request
 		err         error
 	)
 
-	if userID, ok := r.(int); ok {
-		lastRequest, err = s.reqCase.GettingUserLastRequest(userID)
+	if user, ok := r.(mw.UserWithRole); ok {
+		lastRequest, err = s.reqCase.GettingUserLastRequest(user.UserID)
 	}
 
 	if err != nil {
@@ -43,14 +43,14 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 }
 
 func (s *Service) FeedEquipment(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(mw.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	var (
 		lastRequest *ds.Request
 		err         error
 	)
 
 	if ok {
-		lastRequest, err = s.reqCase.GettingUserLastRequest(userID)
+		lastRequest, err = s.reqCase.GettingUserLastRequest(user.UserID)
 	}
 
 	if err != nil {
@@ -195,7 +195,7 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 }
 
 func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(mw.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для добавления оборудования в корзину нужно авторизоваться"})
 		return
@@ -208,9 +208,9 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 		return
 	}
 
-	req, err := s.reqCase.GettingUserLastRequest(userID)
+	req, err := s.reqCase.GettingUserLastRequest(user.UserID)
 	if err != nil {
-		req, err = s.reqCase.CreateDraftRequest(userID)
+		req, err = s.reqCase.CreateDraftRequest(user.UserID)
 		if err != nil {
 			s.log.Error(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось создать заявку"})

@@ -8,10 +8,22 @@ import (
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
+// ShowAccount godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Account ID"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /edit/{id} [get]
 func (s *Service) EditCount(c *gin.Context) {
-	userID := c.Request.Context().Value(mw.ContextUserID).(int)
+	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 
-	request, err := s.reqCase.GettingUserLastRequest(userID)
+	request, err := s.reqCase.GettingUserLastRequest(user.UserID)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "возникла проблема с получение черновой заявки пользователя"})
@@ -45,9 +57,9 @@ func (s *Service) EditCount(c *gin.Context) {
 }
 
 func (s *Service) DeleteOrder(c *gin.Context) {
-	userID := c.Request.Context().Value(mw.ContextUserID).(int)
+	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 
-	request, err := s.reqCase.GettingUserLastRequest(userID)
+	request, err := s.reqCase.GettingUserLastRequest(user.UserID)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "возникла проблема с получение черновой заявки пользователя"})

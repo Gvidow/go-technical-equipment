@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
 	"github.com/gvidow/go-technical-equipment/internal/app/usecases/request"
-	"github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
+	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
 func (s *Service) ListRequest(c *gin.Context) {
@@ -17,6 +17,10 @@ func (s *Service) ListRequest(c *gin.Context) {
 		return
 	}
 
+	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
+	if user.Role == ds.RegularUser {
+		feedCfg.SetCreatorFilterInt(user.UserID)
+	}
 	feed, err := s.reqCase.GetFeedRequests(feedCfg)
 	if err != nil {
 		s.log.Error(err)
@@ -89,7 +93,7 @@ func (s *Service) OperationRequest(c *gin.Context) {
 }
 
 func (s *Service) StatusChangeByCreator(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для изменения статуса заявки вы должны авторизоваться по модератором"})
 		return
@@ -112,7 +116,7 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 		return
 	}
 
-	err = s.reqCase.ChangeStatusRequest(userID, requestID, newStatus.Status, ds.RegularUser)
+	err = s.reqCase.ChangeStatusRequest(user.UserID, requestID, newStatus.Status, ds.RegularUser)
 	var message string
 	var status int
 	switch err {
@@ -133,7 +137,7 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 }
 
 func (s *Service) StatusChangeByModerator(c *gin.Context) {
-	userID, ok := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "для изменения статуса заявки вы должны авторизоваться по модератором"})
 		return
@@ -157,6 +161,7 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 	}
 
 	err = s.reqCase.StatusChangeByModerator(userID, requestID, newStatus.Status)
+  
 	var message string
 	var status int
 	switch err {
