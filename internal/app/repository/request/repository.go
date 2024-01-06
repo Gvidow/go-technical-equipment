@@ -6,7 +6,8 @@ type Repository interface {
 	GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Request, error)
 	GetRequestByID(requestID int) (*ds.Request, error)
 	GetLastEnteredRequestByUserID(userID int) (*ds.Request, error)
-	SaveRequest(req *ds.Request) (*ds.Request, error)
+	AddRequest(req *ds.Request) (*ds.Request, error)
+	SaveRequest(req *ds.Request) error
 	DeleteRequest(requestID int) error
 	UpdateRequestStatus(requestID int, newStatus, oldStatusRequire string) error
 	SaveUpdatedRequest(req *ds.Request) error

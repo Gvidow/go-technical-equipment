@@ -67,6 +67,27 @@ func (s *Service) EditRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "заявка успешно изменена"})
 }
 
+func (s *Service) OperationRequest(c *gin.Context) {
+	userID, _ := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	requestID, err := FetchIdFromURLPath(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "для формирования заявки требуется передать в пути её id"})
+		return
+	}
+
+	err = s.reqCase.ToFormRequest(requestID, userID)
+	if err == request.ErrStatusCannotChange {
+		s.log.Info(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "статус заявки не позволяет совершать её формирование"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "не удалось сформировать заявку"})
+		return
+	}
+	c.JSON(http.StatusBadRequest, gin.H{"status": "ok", "message": "заявка успешно сформирована"})
+}
+
 func (s *Service) StatusChangeByCreator(c *gin.Context) {
 	userID, ok := c.Request.Context().Value(middlewares.ContextUserID).(int)
 	if !ok {
@@ -135,7 +156,7 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 		return
 	}
 
-	err = s.reqCase.ChangeStatusRequest(userID, requestID, newStatus.Status, ds.Moderator)
+	err = s.reqCase.StatusChangeByModerator(userID, requestID, newStatus.Status)
 	var message string
 	var status int
 	switch err {
@@ -149,6 +170,7 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 		message = "пользователь с этой ролью не может изменить статус заявки на указанный"
 		status = http.StatusForbidden
 	default:
+		s.log.Info(err.Error())
 		message = "не удалось изменить статус"
 		status = http.StatusNotFound
 	}
@@ -163,6 +185,11 @@ func (s *Service) DropRequest(c *gin.Context) {
 	}
 
 	err = s.reqCase.DropRequest(id)
+	if err == request.ErrStatusCannotChange {
+		s.log.Info(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "статус заявки не позволяет совершать её удаление"})
+		return
+	}
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось удалить заявку"})

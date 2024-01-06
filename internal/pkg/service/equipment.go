@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
+	"github.com/gvidow/go-technical-equipment/internal/app/usecases/order"
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
@@ -220,6 +221,12 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 	s.log.Sugar().Infof("add equipment(%d) in request(%d)", equipmentID, req.Id())
 
 	err = s.orCase.AddEquipmentInRequest(equipmentID, req.Id())
+	if err == order.ErrEquipmentNotFound {
+		s.log.Info("equipment is deleted")
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "заявка не найдена"})
+		return
+	}
+
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось добавить оборудование в заявку"})

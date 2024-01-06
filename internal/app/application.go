@@ -41,7 +41,7 @@ func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
 	}
 
 	tmpl := template.Must(template.ParseGlob("templates/*"))
-	s := service.New(log, u, reqCase.NewUsecase(reqRepo.NewRepository(db), userRepo.NewUserRepo(db)), orCase.NewUsecase(orRepo.NewRepository(db)))
+	s := service.New(log, u, reqCase.NewUsecase(reqRepo.NewRepository(db), userRepo.NewUserRepo(db)), orCase.NewUsecase(orRepo.NewRepository(db), repo))
 	r := api.New(cfg, s, tmpl)
 
 	return &Application{

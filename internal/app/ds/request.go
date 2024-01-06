@@ -15,8 +15,8 @@ type Request struct {
 	CreatedAt        *time.Time  `gorm:"created_at;" json:"created_at"`
 	FormatedAt       *time.Time  `gorm:"formated_at;null" json:"formated_at"`
 	CompletedAt      *time.Time  `gorm:"completed_at;null" json:"completed_at"`
-	CreatorProfile   *User       `gorm:"foreignKey:creator;references:id" json:"creator_profile,omitempty"`
-	ModeratorProfile *User       `gorm:"foreignKey:moderator;references:id" json:"moderator_profile,omitempty"`
+	CreatorProfile   *User       `gorm:"foreignKey:creator;references:id" json:"creator_profile"`
+	ModeratorProfile *User       `gorm:"foreignKey:moderator;references:id" json:"moderator_profile"`
 	Equipments       []Equipment `gorm:"many2many:orders;" json:"equipments,omitempty"`
 }
 
