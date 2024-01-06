@@ -57,10 +57,11 @@ func New(ctx context.Context, log *logger.Logger, cfg *config.Config) (*Applicat
 	}
 
 	tmpl := template.Must(template.ParseGlob("templates/*"))
+
 	ur := userRepo.NewUserRepo(db)
 	s := service.New(log, cfg, u,
 		reqCase.NewUsecase(reqRepo.NewRepository(db), ur),
-		orCase.NewUsecase(orRepo.NewRepository(db)),
+		orCase.NewUsecase(orRepo.NewRepository(db), repo),
 		auth.NewUsecase(ur, redisClient))
 	r := api.New(cfg, s, tmpl, redisClient)
 

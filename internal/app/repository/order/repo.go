@@ -1,11 +1,15 @@
 package order
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
+
+var ErrEquipmentAlreadyAdd = errors.New("equipment already add")
 
 func NewRepository(db *gorm.DB) Repository {
 	return &orderRepo{db}
@@ -16,11 +20,29 @@ type orderRepo struct {
 }
 
 func (o *orderRepo) OrderReplenishment(order ds.Order) error {
-	return o.db.Create(order).Error
+	// equipment := &ds.Equipment{}
+	// err := o.db.First(equipment, "id = ?", order.EquipmentID).Error
+	// if err != nil {
+	// 	return fmt.Errorf("get equipment for adding for replenishment order: %w", err)
+	// }
+
+	// err = o.db.Model(&ds.Request{ID: order.RequestID}).Association("Equipments").Append(equipment)
+	// if err != nil {
+	// 	return fmt.Errorf("order replenishment: %w", err)
+	// }
+
+	err := o.db.Create(order).Error
+	t := &pgconn.PgError{}
+	ok := errors.As(err, &t)
+	if ok && t.Code == "23505" {
+		return ErrEquipmentAlreadyAdd
+	}
+	return err
 }
 
 func (o *orderRepo) DropOrder(order ds.Order) error {
-	if err := o.db.Delete(order).Error; err != nil {
+	err := o.db.Model(&ds.Request{ID: order.RequestID}).Association("Equipments").Delete(&ds.Equipment{ID: order.EquipmentID})
+	if err != nil {
 		return fmt.Errorf("drop order from storage: %w", err)
 	}
 	return nil

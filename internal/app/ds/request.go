@@ -8,16 +8,16 @@ import (
 var _emptyTime = time.Time{}
 
 type Request struct {
-	ID               int `gorm:"primary_key"`
-	Status           string
-	Moderator        int         `json:"moderator,omitempty"`
-	Creator          int         `json:"creator,omitempty"`
-	CreatedAt        *time.Time  `gorm:"created_at;" json:",omitempty"`
-	FormatedAt       *time.Time  `gorm:"formated_at;null" json:",omitempty"`
-	CompletedAt      *time.Time  `gorm:"completed_at;null" json:",omitempty"`
-	CreatorProfile   *User       `gorm:"-" json:",omitempty"`
-	ModeratorProfile *User       `gorm:"-" json:",omitempty"`
-	Equipments       []Equipment `gorm:"-" json:",omitempty"`
+	ID               int         `json:"id" gorm:"primary_key"`
+	Status           string      `json:"status"`
+	Moderator        int         `json:"-"`
+	Creator          int         `json:"-"`
+	CreatedAt        *time.Time  `gorm:"created_at;" json:"created_at"`
+	FormatedAt       *time.Time  `gorm:"formated_at;null" json:"formated_at"`
+	CompletedAt      *time.Time  `gorm:"completed_at;null" json:"completed_at"`
+	CreatorProfile   *User       `gorm:"foreignKey:creator;references:id" json:"creator_profile"`
+	ModeratorProfile *User       `gorm:"foreignKey:moderator;references:id" json:"moderator_profile"`
+	Equipments       []Equipment `gorm:"many2many:orders;" json:"equipments,omitempty"`
 }
 
 func (r *Request) Id() int {

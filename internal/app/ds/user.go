@@ -1,10 +1,10 @@
 package ds
 
 type User struct {
-	ID       int `gorm:"primary_key"`
-	Username string
-	Role     string
-	Email    string
+	ID       int    `json:"id" gorm:"primary_key"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Email    string `json:"email"`
 	Password string
 	role     Role
 }

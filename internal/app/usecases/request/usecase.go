@@ -1,7 +1,9 @@
 package request
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/request"
@@ -22,8 +24,9 @@ var _permissionsChangeStatuses = map[ds.Role]map[string]struct{}{
 }
 
 var (
-	ErrNotAccess         = fmt.Errorf("not access")
-	ErrRoleHaveNotAccess = fmt.Errorf("the role does not have access")
+	ErrNotAccess          = errors.New("not access")
+	ErrRoleHaveNotAccess  = errors.New("the role does not have access")
+	ErrStatusCannotChange = errors.New("the status cannot be changed")
 )
 
 type Usecase struct {
@@ -41,15 +44,66 @@ func (u *Usecase) GettingUserLastRequest(userID int) (*ds.Request, error) {
 
 func (u *Usecase) CreateDraftRequest(userID int) (*ds.Request, error) {
 	request := &ds.Request{
-		Creator:   userID,
-		Moderator: userID,
-		Status:    "entered",
+		Creator: userID,
+		Status:  "entered",
 	}
-	return u.repo.SaveRequest(request)
+	return u.repo.AddRequest(request)
+}
+
+func (u *Usecase) ToFormRequest(requestID int, userID int) error {
+	req, err := u.repo.GetRequestByID(requestID)
+	if err != nil {
+		return fmt.Errorf("to form status request: %w", err)
+	}
+	if req.Creator != userID {
+		return ErrNotAccess
+	}
+	if req.Status != "entered" {
+		return ErrStatusCannotChange
+	}
+
+	req.Status = "operation"
+	t := time.Now().Local().UTC()
+	req.FormatedAt = &t
+	err = u.repo.SaveRequest(req)
+	if err != nil {
+		return fmt.Errorf("edit status on oparation: %w", err)
+	}
+	return nil
 }
 
 func (u *Usecase) DropRequest(requestID int) error {
+	req, err := u.repo.GetRequestByID(requestID)
+	if err != nil {
+		return fmt.Errorf("drop request: %w", err)
+	}
+	if req.Status != "entered" {
+		return ErrStatusCannotChange
+	}
 	return u.repo.DeleteRequest(requestID)
+}
+
+func (u *Usecase) StatusChangeByModerator(userID, requestID int, newStatus string) error {
+	if _, ok := _permissionsChangeStatuses[ds.Moderator][newStatus]; !ok {
+		return ErrRoleHaveNotAccess
+	}
+
+	req, err := u.repo.GetRequestByID(requestID)
+	if err != nil {
+		return fmt.Errorf("get request for status change by moderator: %w", err)
+	}
+	if req.Status != "operation" {
+		return ErrStatusCannotChange
+	}
+
+	req.Moderator = userID
+	req.Status = newStatus
+	t := time.Now().Local().UTC()
+	req.CompletedAt = &t
+	if err = u.repo.SaveRequest(req); err != nil {
+		return fmt.Errorf("status change by moderator on %s: %w", newStatus, err)
+	}
+	return nil
 }
 
 func (u *Usecase) ChangeStatusRequest(userID, requestID int, newStatus string, requestedRole ds.Role) error {
@@ -79,16 +133,6 @@ func (u *Usecase) GetRequestByID(requestID int) (*ds.Request, error) {
 	request, err := u.repo.GetRequestByID(requestID)
 	if err != nil {
 		return nil, fmt.Errorf("get request by id: %w", err)
-	}
-
-	err = u.revealCreator(request)
-	if err != nil {
-		return nil, err
-	}
-
-	err = u.revealModerator(request)
-	if err != nil {
-		return nil, err
 	}
 
 	err = u.repo.RevealEquipments(request)

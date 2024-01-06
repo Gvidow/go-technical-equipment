@@ -42,6 +42,11 @@ func (s *Service) EditCount(c *gin.Context) {
 		return
 	}
 
+	if countNew < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "количество должно быть положительным числом"})
+		return
+	}
+
 	err = s.orCase.EditCountEquipmentsInRequest(equipmentID, request.ID, int(countNew))
 	if err != nil {
 		s.log.Error(err)

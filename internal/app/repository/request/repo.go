@@ -24,12 +24,21 @@ func (r *requestRepo) GetLastEnteredRequestByUserID(userID int) (*ds.Request, er
 	return request, nil
 }
 
-func (r *requestRepo) SaveRequest(req *ds.Request) (*ds.Request, error) {
-	err := r.db.Create(req).Error
+func (r *requestRepo) AddRequest(req *ds.Request) (*ds.Request, error) {
+	err := r.db.Omit("moderator").Create(req).Error
 	if err != nil {
 		return nil, fmt.Errorf("save request: %w", err)
 	}
 	return req, nil
+}
+
+func (r *requestRepo) SaveRequest(req *ds.Request) error {
+	req.ModeratorProfile = nil
+	req.CreatorProfile = nil
+	if err := r.db.Save(req).Error; err != nil {
+		return fmt.Errorf("save request in storage: %w", err)
+	}
+	return nil
 }
 
 func (r *requestRepo) DeleteRequest(requestID int) error {
@@ -50,7 +59,11 @@ func (r *requestRepo) UpdateRequestStatus(requestID int, newStatus, oldStatusReq
 
 func (r *requestRepo) GetRequestByID(requestID int) (*ds.Request, error) {
 	req := &ds.Request{ID: requestID}
-	if err := r.db.Find(req).Error; err != nil {
+	if err := r.db.
+		Preload("CreatorProfile").
+		Preload("ModeratorProfile").
+		Preload("Equipments").
+		First(req).Error; err != nil {
 		return nil, fmt.Errorf("get request by id from storage: %w", err)
 	}
 	return req, nil
@@ -98,7 +111,7 @@ func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Reque
 	if formatedBefore, ok := cfg.FormatedBeforeFilter(); ok {
 		db = db.Where("formated_at < ?", formatedBefore)
 	}
-	err := db.Find(&feed).Error
+	err := db.Preload("CreatorProfile").Preload("ModeratorProfile").Find(&feed).Error
 	return feed, err
 }
 
