@@ -45,7 +45,7 @@ func (o *orderRepo) DropOrder(order ds.Order) error {
 	if err != nil {
 		return fmt.Errorf("drop order from storage: %w", err)
 	}
-	return err
+	return nil
 }
 
 func (o *orderRepo) OrderInc(order ds.Order) error {
