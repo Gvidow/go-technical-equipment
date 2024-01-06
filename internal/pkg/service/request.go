@@ -31,6 +31,11 @@ func (s *Service) ListRequest(c *gin.Context) {
 }
 
 func (s *Service) GetRequest(c *gin.Context) {
+	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
+
+	user := &ds.User{ID: ctxUser.UserID}
+	user.SetRole(ctxUser.Role)
+
 	requestID, err := FetchIdFromURLPath(c)
 	if err != nil {
 		s.log.Error(err)
@@ -38,7 +43,7 @@ func (s *Service) GetRequest(c *gin.Context) {
 		return
 	}
 
-	request, err := s.reqCase.GetRequestByID(requestID)
+	request, err := s.reqCase.GetRequestByID(requestID, user)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "не удалось найти выбранную заявку"})
@@ -72,7 +77,7 @@ func (s *Service) EditRequest(c *gin.Context) {
 }
 
 func (s *Service) OperationRequest(c *gin.Context) {
-	userID, _ := c.Request.Context().Value(middlewares.ContextUserID).(int)
+	userID := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole).UserID
 	requestID, err := FetchIdFromURLPath(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "для формирования заявки требуется передать в пути её id"})
@@ -160,8 +165,8 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 		return
 	}
 
-	err = s.reqCase.StatusChangeByModerator(userID, requestID, newStatus.Status)
-  
+	err = s.reqCase.StatusChangeByModerator(user.UserID, requestID, newStatus.Status)
+
 	var message string
 	var status int
 	switch err {
@@ -183,13 +188,18 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 }
 
 func (s *Service) DropRequest(c *gin.Context) {
+	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
+
+	user := &ds.User{ID: ctxUser.UserID}
+	user.SetRole(ctxUser.Role)
+
 	id, err := FetchIdFromURLPath(c)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id оборудования - натуральное число"})
 		return
 	}
 
-	err = s.reqCase.DropRequest(id)
+	err = s.reqCase.DropRequest(id, user)
 	if err == request.ErrStatusCannotChange {
 		s.log.Info(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "статус заявки не позволяет совершать её удаление"})

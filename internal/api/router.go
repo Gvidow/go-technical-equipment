@@ -36,22 +36,26 @@ func produceRouting(r *gin.Engine, s *service.Service, cfg *config.Config, bl *r
 			eq.GET("/list/active", s.GetListEquipments)
 			eq.GET("/list", s.FeedEquipment)
 			eq.GET("/get/:id", s.GetOneEquipment)
-			eq.POST("/add", s.AddNewEquipment)
-			eq.PUT("/edit/:id", s.EditEquipment)
-			eq.DELETE("/delete/:id", s.DeleteEquipment)
-			eq.POST("/last/:id", s.AddEquipmentInLastRequest)
+
+			eq.Use(middlewares.RequireAuth()).POST("/last/:id", s.AddEquipmentInLastRequest)
+
+			sub := eq.Group("", middlewares.RequireAuth(ds.Moderator))
+			{
+				sub.POST("/add", s.AddNewEquipment)
+				sub.PUT("/edit/:id", s.EditEquipment)
+				sub.DELETE("/delete/:id", s.DeleteEquipment)
+			}
 		}
 
 		req := api.Group("/request")
 		{
-			req.GET("/get/:id", s.GetRequest)
-      req.Use(middlewares.RequireAuth()).GET("/list", s.ListRequest)
+			req.Use(middlewares.RequireAuth())
 
-			sub := req.Group("", middlewares.RequireAuth(ds.RegularUser))
-			{
-				sub.PUT("/format/:id", s.OperationRequest)
-				sub.DELETE("/delete/:id", s.DropRequest)
-			}
+			req.GET("/get/:id", s.GetRequest)
+			req.GET("/list", s.ListRequest)
+
+			req.PUT("/format/:id", s.OperationRequest)
+			req.DELETE("/delete/:id", s.DropRequest)
 
 			req.Group("/status/change/moderator/:id").
 				Use(middlewares.RequireAuth(ds.Moderator)).

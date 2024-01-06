@@ -72,10 +72,14 @@ func (u *Usecase) ToFormRequest(requestID int, userID int) error {
 	return nil
 }
 
-func (u *Usecase) DropRequest(requestID int) error {
+func (u *Usecase) DropRequest(requestID int, user *ds.User) error {
 	req, err := u.repo.GetRequestByID(requestID)
 	if err != nil {
 		return fmt.Errorf("drop request: %w", err)
+	}
+
+	if req.Creator != user.ID {
+		return ErrNotAccess
 	}
 	if req.Status != "entered" {
 		return ErrStatusCannotChange
@@ -129,10 +133,14 @@ func (u *Usecase) ChangeStatusRequest(userID, requestID int, newStatus string, r
 	return nil
 }
 
-func (u *Usecase) GetRequestByID(requestID int) (*ds.Request, error) {
+func (u *Usecase) GetRequestByID(requestID int, user *ds.User) (*ds.Request, error) {
 	request, err := u.repo.GetRequestByID(requestID)
 	if err != nil {
 		return nil, fmt.Errorf("get request by id: %w", err)
+	}
+
+	if user.GetRole() != ds.Moderator && request.Creator != user.ID {
+		return nil, ErrNotAccess
 	}
 
 	err = u.repo.RevealEquipments(request)
