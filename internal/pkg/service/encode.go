@@ -60,6 +60,14 @@ func encodeFeedRequestConfig(u *url.URL) (ds.FeedRequestConfig, error) {
 		}
 	}
 
+	if u.Query().Has("creatorProfile") {
+		cfg.SetCreatorProfileFilter(u.Query().Get("creatorProfile"))
+	}
+
+	if u.Query().Has("moderatorProfile") {
+		cfg.SetModeratorProfileFilter(u.Query().Get("moderatorProfile"))
+	}
+
 	if u.Query().Has("status") {
 		cfg.SetStatusFilter(u.Query().Get("status"))
 	}

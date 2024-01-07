@@ -42,6 +42,20 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 	}
 }
 
+// ShowAccount godoc
+// @Summary      Show an equipments
+// @Description  get list equipments
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Param        title          query      string  false  "Title filter"
+// @Param        status         query      string  false  "Status filter"
+// @Param        createdAfter   query      string  false  "Created after" format(date) example(30.12.2023)
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/list [get]
 func (s *Service) FeedEquipment(c *gin.Context) {
 	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	var (
@@ -72,6 +86,18 @@ func (s *Service) FeedEquipment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "body": gin.H{"equipments": equipments, "last_request_id": lastRequest.Id()}})
 }
 
+// ShowAccount godoc
+// @Summary      Show an equipment in detail
+// @Description  get information about the equipment
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Param        id         path      int  true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/get/{id} [get]
 func (s *Service) GetOneEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
 	if err != nil {
@@ -87,6 +113,19 @@ func (s *Service) GetOneEquipment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "body": equipment})
 }
 
+// ShowAccount godoc
+// @Summary      Adding a equipment
+// @Description  adding new equipment to the turnover
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id         path      int  true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/add [post]
 func (s *Service) AddNewEquipment(c *gin.Context) {
 	err := c.Request.ParseMultipartForm(50 * 1024 * 1024)
 	if err != nil {
@@ -117,6 +156,19 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"status": "ok", "body": map[string]int{"id": newID}})
 }
 
+// ShowAccount godoc
+// @Summary      Update a equipment
+// @Description  edit the active equipment
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id         path      int  true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/edit/{id} [put]
 func (s *Service) EditEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
 	if err != nil {
@@ -179,6 +231,19 @@ func (s *Service) EditEquipment(c *gin.Context) {
 	}
 }
 
+// ShowAccount godoc
+// @Summary      Delete a equipment
+// @Description  change the equipment status from 'active' to 'delete'
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id         path      int  true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/delete/{id} [delete]
 func (s *Service) DeleteEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
 	if err != nil {
@@ -194,6 +259,18 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 	}
 }
 
+// ShowAccount godoc
+// @Summary      Adding equipment to the shopping cart
+// @Description  add a service to the user's draft request
+// @Tags         equipment
+// @Accept       json
+// @Produce      json
+// @Param        id         path      int  true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /equipment/last/{id} [post]
 func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 	if !ok {

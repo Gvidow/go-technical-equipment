@@ -9,17 +9,18 @@ import (
 )
 
 // ShowAccount godoc
-// @Summary      Show an account
-// @Description  get string by ID
-// @Tags         accounts
+// @Summary      Edit count equipment from the request
+// @Description  edit count equipment from the user's request with status 'entered'
+// @Tags         request
 // @Accept       json
 // @Produce      json
-// @Param        id   path      int  true  "Account ID"
+// @Security     ApiKeyAuth
+// @Param        id   path      int  true  "Equipment ID"
 // @Success      200  {object}  int
 // @Failure      400  {object}  int
 // @Failure      404  {object}  string
 // @Failure      500  {object}  int
-// @Router       /edit/{id} [get]
+// @Router       /order/edit/count/{id} [put]
 func (s *Service) EditCount(c *gin.Context) {
 	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 
@@ -56,6 +57,19 @@ func (s *Service) EditCount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "колличество оборудования в заявке успешно изменено"})
 }
 
+// ShowAccount godoc
+// @Summary      Removing equipment from the request
+// @Description  delete equipment from the user's request with status 'entered'
+// @Tags         request
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id               path      int     true  "Equipment id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /order/delete/{id} [delete]
 func (s *Service) DeleteOrder(c *gin.Context) {
 	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
 

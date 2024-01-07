@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -61,6 +62,7 @@ func Auth(cfg config.JWTConfig, client *redis.Client) gin.HandlerFunc {
 		}
 
 		if tokenJWT.Valid {
+			log.Printf("REQUEST: userID=%d, role=%s\n", claims.UserID, claims.Role)
 			c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), ContextUser, UserWithRole{
 				UserID: claims.UserID,
 				Role:   claims.Role,

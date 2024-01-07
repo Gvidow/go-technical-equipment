@@ -101,9 +101,13 @@ func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig, userID int)
 		db = db.Where("moderator = ?", moderator)
 	}
 
-	// if creator, ok := cfg.CreatorProfileFilter(); ok {
-	// 	db = db.InnerJoins("users")
-	// }
+	if creator, ok := cfg.CreatorProfileFilter(); ok {
+		db = db.InnerJoins("CreatorProfile").Where("username LIKE ?", "%"+creator+"%")
+	}
+
+	if moderator, ok := cfg.ModeratorProfileFilter(); ok {
+		db = db.InnerJoins("ModeratorProfile").Where("username LIKE ?", "%"+moderator+"%")
+	}
 
 	if status, ok := cfg.StatusFilter(); ok {
 		db = db.Where("status = ?", status)

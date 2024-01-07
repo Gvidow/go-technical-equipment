@@ -20,6 +20,18 @@ type loginResp struct {
 	TokenType   string `json:"token_type"`
 }
 
+// ShowAccount godoc
+// @Summary      Authentificated
+// @Description  Login user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        loginParam   body      loginReq  true  "Credentials"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  any{Body int}
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
+// @Router       /auth/login [post]
 func (s *Service) Login(c *gin.Context) {
 	req := &loginReq{}
 	err := json.NewDecoder(c.Request.Body).Decode(req)
@@ -87,17 +99,17 @@ func (s *Service) Signup(c *gin.Context) {
 }
 
 // ShowAccount godoc
-// @Summary      Authentificated
-// @Description  Login user
+// @Summary      Unauthentificated
+// @Description  logout user
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        loginParam   body      loginReq  true  "Credentials"
-// @Success      200  {object}  ResponseOk
-// @Failure      400  {object}  any{Body int}
-// @Failure      404  {object}  ResponseError
-// @Failure      500  {object}  ResponseError
-// @Router       /auth/login [post]
+// @Security     ApiKeyAuth
+// @Success      200  {object}  int
+// @Failure      400  {object}  int
+// @Failure      404  {object}  string
+// @Failure      500  {object}  int
+// @Router       /auth/logout [delete]
 func (s *Service) Logout(c *gin.Context) {
 	err := s.authCase.Logout(c, c.GetHeader(s.cfg.JWT.Header), s.cfg.JWT)
 	switch err {
