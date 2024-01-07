@@ -11,17 +11,18 @@ import (
 )
 
 func (s *Service) ListRequest(c *gin.Context) {
+	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
+
+	user := &ds.User{ID: ctxUser.UserID}
+	user.SetRole(ctxUser.Role)
+
 	feedCfg, err := encodeFeedRequestConfig(c.Request.URL)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "ошибка в параметрах запроса"})
 		return
 	}
 
-	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
-	if user.Role == ds.RegularUser {
-		feedCfg.SetCreatorFilterInt(user.UserID)
-	}
-	feed, err := s.reqCase.GetFeedRequests(feedCfg)
+	feed, err := s.reqCase.GetFeedRequests(feedCfg, user)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось получить список заявок"})

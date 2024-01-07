@@ -31,15 +31,30 @@ func (r *Request) TableName() string {
 	return "request"
 }
 
+type filter[T any] struct {
+	val T
+	has bool
+}
+
+func (f *filter[T]) SetFilter(val T) { f.val, f.has = val, true }
+
+func (f *filter[T]) Filter() (T, bool) { return f.val, f.has }
+
+func (f *filter[T]) Has() bool { return f.has }
+
+func (f *filter[T]) Clean() { f.val, f.has = *new(T), false }
+
 type FeedRequestConfig struct {
-	creator        int
-	moderator      int
-	status         string
-	createdAt      time.Time
-	formatedAt     time.Time
-	formatedAfter  time.Time
-	formatedBefore time.Time
-	completedAt    time.Time
+	creator          int
+	moderator        int
+	creatorProfile   filter[string]
+	moderatorProfile filter[string]
+	status           string
+	createdAt        time.Time
+	formatedAt       time.Time
+	formatedAfter    time.Time
+	formatedBefore   time.Time
+	completedAt      time.Time
 }
 
 func (f *FeedRequestConfig) SetCreatorFilterInt(creator int) {
@@ -93,6 +108,30 @@ func (f *FeedRequestConfig) SetFormatedFilter(date string) error {
 	}
 	f.formatedAt = t
 	return nil
+}
+
+func (f *FeedRequestConfig) SetCreatorProfileFilter(username string) {
+	f.creatorProfile.SetFilter(username)
+}
+
+func (f *FeedRequestConfig) SetModeratorProfileFilter(username string) {
+	f.moderatorProfile.SetFilter(username)
+}
+
+func (f *FeedRequestConfig) CleanCreatorProfileFilter() {
+	f.creatorProfile.Clean()
+}
+
+func (f *FeedRequestConfig) CleanModeratorProfileFilter() {
+	f.moderatorProfile.Clean()
+}
+
+func (f *FeedRequestConfig) CreatorProfileFilter() (string, bool) {
+	return f.creatorProfile.Filter()
+}
+
+func (f *FeedRequestConfig) ModeratorProfileFilter() (string, bool) {
+	return f.moderatorProfile.Filter()
 }
 
 func (f *FeedRequestConfig) CreatorFilter() (int, bool) {

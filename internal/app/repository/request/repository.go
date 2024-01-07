@@ -3,7 +3,7 @@ package request
 import "github.com/gvidow/go-technical-equipment/internal/app/ds"
 
 type Repository interface {
-	GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Request, error)
+	GetRequestWithFilter(cfg ds.FeedRequestConfig, userID int) ([]ds.Request, error)
 	GetRequestByID(requestID int) (*ds.Request, error)
 	GetLastEnteredRequestByUserID(userID int) (*ds.Request, error)
 	AddRequest(req *ds.Request) (*ds.Request, error)

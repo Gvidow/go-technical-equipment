@@ -35,7 +35,13 @@ func (r *requestRepo) AddRequest(req *ds.Request) (*ds.Request, error) {
 func (r *requestRepo) SaveRequest(req *ds.Request) error {
 	req.ModeratorProfile = nil
 	req.CreatorProfile = nil
-	if err := r.db.Save(req).Error; err != nil {
+
+	db := r.db
+	if req.Moderator == 0 {
+		db = db.Omit("moderator")
+	}
+
+	if err := db.Save(req).Error; err != nil {
 		return fmt.Errorf("save request in storage: %w", err)
 	}
 	return nil
@@ -83,19 +89,26 @@ func (r *requestRepo) SaveUpdatedRequest(req *ds.Request) error {
 	return nil
 }
 
-func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig) ([]ds.Request, error) {
+func (r *requestRepo) GetRequestWithFilter(cfg ds.FeedRequestConfig, userID int) ([]ds.Request, error) {
 	feed := make([]ds.Request, 0)
 
-	db := r.db
+	db := r.db.Where("status = ? OR status IN ? AND creator = ?", "operation", []string{"completed", "canceled"}, userID)
+
 	if creator, ok := cfg.CreatorFilter(); ok {
 		db = db.Where("creator = ?", creator)
 	}
 	if moderator, ok := cfg.ModeratorFilter(); ok {
 		db = db.Where("moderator = ?", moderator)
 	}
+
+	// if creator, ok := cfg.CreatorProfileFilter(); ok {
+	// 	db = db.InnerJoins("users")
+	// }
+
 	if status, ok := cfg.StatusFilter(); ok {
 		db = db.Where("status = ?", status)
 	}
+
 	if createdAt, ok := cfg.CreatedAtFilter(); ok {
 		db = db.Where("created_at = ?", createdAt)
 	}

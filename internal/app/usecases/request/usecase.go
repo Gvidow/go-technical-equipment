@@ -155,8 +155,28 @@ func (u *Usecase) EditRequest(requestID int, changes map[string]any) error {
 	return u.repo.UpdateRequest(requestID, changes)
 }
 
-func (u *Usecase) GetFeedRequests(cfg ds.FeedRequestConfig) ([]ds.Request, error) {
-	return u.repo.GetRequestWithFilter(cfg)
+func (u *Usecase) GetFeedRequests(cfg ds.FeedRequestConfig, user *ds.User) ([]ds.Request, error) {
+	switch user.GetRole() {
+	case ds.RegularUser:
+		if userID, ok := cfg.CreatorFilter(); ok && userID != user.ID {
+			return nil, ErrNotAccess
+		}
+		cfg.SetCreatorFilterInt(user.ID)
+		cfg.CleanCreatorProfileFilter()
+	case ds.Moderator:
+		if status, ok := cfg.StatusFilter(); ok && (status == "completed" || status == "canceled") {
+			cfg.SetCreatorFilterInt(user.ID)
+		}
+	default:
+		return nil, ErrNotAccess
+	}
+
+	if status, ok := cfg.StatusFilter(); ok &&
+		(status != "operation" && status != "completed" && status != "canceled") {
+		return nil, nil
+	}
+
+	return u.repo.GetRequestWithFilter(cfg, user.ID)
 }
 
 func (u *Usecase) revealCreator(request *ds.Request) error {

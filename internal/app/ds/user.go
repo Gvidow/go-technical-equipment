@@ -5,7 +5,7 @@ type User struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	Email    string `json:"email"`
-	Password string
+	Password string `json:"-"`
 	role     Role
 }
 
