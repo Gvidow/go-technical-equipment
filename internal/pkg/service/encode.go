@@ -19,8 +19,8 @@ func encodeFeedConfig(u *url.URL) (ds.FeedEquipmentConfig, error) {
 		}
 		cfg.SetDateCreateFilter(date)
 	}
-	if u.Query().Has("title") {
-		cfg.SetTitleFilter(u.Query().Get("title"))
+	if u.Query().Has("equipment") {
+		cfg.SetTitleFilter(u.Query().Get("equipment"))
 	}
 
 	switch u.Query().Get("status") {

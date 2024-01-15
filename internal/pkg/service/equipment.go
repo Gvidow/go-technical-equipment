@@ -48,7 +48,7 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 // @Tags         equipment
 // @Accept       json
 // @Produce      json
-// @Param        title          query      string  false  "Title filter"
+// @Param        equipment      query      string  false  "Title filter"
 // @Param        status         query      string  false  "Status filter"
 // @Param        createdAfter   query      string  false  "Created after" format(date) example(30.12.2023)
 // @Success      200  {object}  int

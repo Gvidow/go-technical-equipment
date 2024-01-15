@@ -18,6 +18,8 @@ type loginResp struct {
 	ExpiresIn   int    `json:"expires_in"`
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
+	Username    string `json:"username"`
+	Role        string `json:"role"`
 }
 
 // ShowAccount godoc
@@ -42,7 +44,7 @@ func (s *Service) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := s.authCase.Login(req.Login, req.Password, s.cfg.JWT)
+	token, user, err := s.authCase.Login(req.Login, req.Password, s.cfg.JWT)
 	if err == auth.ErrIncorrectCredentials {
 		s.log.Info(err.Error())
 		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "неправильные логин или пароль"})
@@ -59,6 +61,8 @@ func (s *Service) Login(c *gin.Context) {
 		ExpiresIn:   int(s.cfg.JWT.ExpiresIn),
 		AccessToken: token,
 		TokenType:   s.cfg.JWT.TokenType,
+		Username:    user.Username,
+		Role:        user.Role,
 	})
 }
 

@@ -1,8 +1,8 @@
 package service
 
 import (
+	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
@@ -33,15 +33,19 @@ func (s *Service) EditCount(c *gin.Context) {
 
 	equipmentID, err := FetchIdFromURLPath(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в пути должно быть передано новое количество - натуральное число"})
-		return
-	}
-
-	countNew, err := strconv.ParseInt(c.Request.FormValue("count"), 10, 64)
-	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в пути должен быть указан id оборудования - натуральное число"})
 		return
 	}
+
+	var count struct{ Count int }
+	err = json.NewDecoder(c.Request.Body).Decode(&count)
+	c.Request.Body.Close()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "в запросе должно быть передано новое количество - натуральное число"})
+		return
+	}
+
+	countNew := count.Count
 
 	if countNew < 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "количество должно быть положительным числом"})

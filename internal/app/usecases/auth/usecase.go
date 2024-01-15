@@ -32,14 +32,14 @@ func NewUsecase(repo userRepo.Repository, client *redis.Client) *Usecase {
 	return &Usecase{repo, client}
 }
 
-func (u *Usecase) Login(login, password string, cfg config.JWTConfig) (string, error) {
+func (u *Usecase) Login(login, password string, cfg config.JWTConfig) (string, *ds.User, error) {
 	user, err := u.repo.GetUserByUsernameOrEmail(login)
 	if err != nil && err != userRepo.ErrRecordNotFound {
-		return "", fmt.Errorf("login: %w", err)
+		return "", nil, fmt.Errorf("login: %w", err)
 	}
 
 	if err == userRepo.ErrRecordNotFound || !isCorrectPassword(user.Password, password) {
-		return "", ErrIncorrectCredentials
+		return "", nil, ErrIncorrectCredentials
 	}
 
 	token := jwt.NewWithClaims(cfg.SignMethod, &ds.JWTClaims{
@@ -53,9 +53,11 @@ func (u *Usecase) Login(login, password string, cfg config.JWTConfig) (string, e
 
 	strToken, err := token.SignedString(cfg.SecretToken)
 	if err != nil {
-		return "", fmt.Errorf("signed string token for login: %w", err)
+		return "", nil, fmt.Errorf("signed string token for login: %w", err)
 	}
-	return strToken, nil
+
+	user.Password = ""
+	return strToken, user, nil
 }
 
 func (u *Usecase) Signup(cred *ds.Credentials) error {
