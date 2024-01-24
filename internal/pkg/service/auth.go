@@ -29,7 +29,7 @@ type loginResp struct {
 // @Accept       json
 // @Produce      json
 // @Param        loginParam   body      loginReq  true  "Credentials"
-// @Success      200  {object}  ResponseOk
+// @Success      200  {object}  ResponseOk{body=loginResp}
 // @Failure      400  {object}  any{Body int}
 // @Failure      404  {object}  ResponseError
 // @Failure      500  {object}  ResponseError

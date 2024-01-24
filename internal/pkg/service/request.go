@@ -138,7 +138,7 @@ func (s *Service) OperationRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "не удалось сформировать заявку"})
 		return
 	}
-	c.JSON(http.StatusBadRequest, gin.H{"status": "ok", "message": "заявка успешно сформирована"})
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "заявка успешно сформирована"})
 }
 
 func (s *Service) StatusChangeByCreator(c *gin.Context) {

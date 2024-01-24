@@ -285,6 +285,8 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 		return
 	}
 
+	var response gin.H
+
 	req, err := s.reqCase.GettingUserLastRequest(user.UserID)
 	if err != nil {
 		req, err = s.reqCase.CreateDraftRequest(user.UserID)
@@ -293,6 +295,7 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось создать заявку"})
 			return
 		}
+		response = gin.H{"status": "ok", "body": map[string]int{"draft_id": req.Id()}}
 	}
 
 	s.log.Sugar().Infof("add equipment(%d) in request(%d)", equipmentID, req.Id())
@@ -309,5 +312,9 @@ func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось добавить оборудование в заявку"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	if response != nil {
+		c.JSON(http.StatusCreated, response)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	}
 }
