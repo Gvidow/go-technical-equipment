@@ -1,6 +1,7 @@
 package service
 
 import (
+	"io"
 	"net/http"
 	"strconv"
 
@@ -139,14 +140,29 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 	description := c.Request.FormValue("description")
 
 	f, fh, err := c.Request.FormFile("picture")
-	if err != nil {
+	if err != nil && err != http.ErrMissingFile {
 		s.log.Info(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "bad request"})
 		return
 	}
-	defer f.Close()
+	if f != nil {
+		defer f.Close()
+	}
+	var (
+		blob        io.Reader
+		size        int64
+		contentType string
+		filename    string
+	)
 
-	newID, err := s.eqCase.AddNewEquipment(c.Request.Context(), title, description, f, fh.Header.Get("Content-Type"), fh.Size, fh.Filename)
+	if fh != nil || f != nil {
+		blob = f
+		size = fh.Size
+		contentType = fh.Header.Get("Content-Type")
+		filename = fh.Filename
+	}
+
+	newID, err := s.eqCase.AddNewEquipment(c.Request.Context(), title, description, blob, contentType, size, filename)
 	if err != nil {
 		s.log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "bad request"})

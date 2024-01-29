@@ -45,10 +45,16 @@ func New(repo equipment.Repository, cfg *minioConfig) (*Usecase, error) {
 
 func (u *Usecase) AddNewEquipment(ctx context.Context, title, description string, body io.Reader,
 	mimeType string, size int64, pictureName string) (int, error) {
+	var fileURL string
+	var err error
 
-	fileURL, err := u.PutFileInMinio(ctx, body, mimeType, size, pictureName)
-	if err != nil {
-		return 0, fmt.Errorf("put file in minio: %w", err)
+	if body == nil {
+		fileURL = ""
+	} else {
+		fileURL, err = u.PutFileInMinio(ctx, body, mimeType, size, pictureName)
+		if err != nil {
+			return 0, fmt.Errorf("put file in minio: %w", err)
+		}
 	}
 
 	eq, err := u.repo.AddEquipment(&ds.Equipment{
