@@ -281,6 +281,7 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 // @Tags         equipment
 // @Accept       json
 // @Produce      json
+// @Security     ApiKeyAuth
 // @Param        id         path      int  true  "Equipment id"
 // @Success      200  {object}  int
 // @Failure      400  {object}  int
