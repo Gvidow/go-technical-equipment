@@ -135,6 +135,7 @@ func (s *Service) OperationRequest(c *gin.Context) {
 		return
 	}
 	if err != nil {
+		s.log.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "не удалось сформировать заявку"})
 		return
 	}
@@ -285,4 +286,40 @@ func (s *Service) DropRequest(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	}
 
+}
+
+type bodyUpdateRevertedStatus struct {
+	AccessToken string `json:"access_token"`
+	Reverted    bool   `json:"is_reverted"`
+}
+
+func (s *Service) UpdateRequestRevertedStatus(c *gin.Context) {
+	reqID, err := FetchIdFromURLPath(c)
+	if err != nil {
+		s.log.Error(err)
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "в пути запроса должен быть указан id заявки - натуральное число"})
+		return
+	}
+
+	body := &bodyUpdateRevertedStatus{}
+	err = json.NewDecoder(c.Request.Body).Decode(body)
+	defer c.Request.Body.Close()
+	if err != nil {
+		s.log.Info("update request reverted status: " + err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "некоректное тело запроса"})
+		return
+	}
+
+	err = s.reqCase.UpdateFieldReverted(reqID, body.Reverted, body.AccessToken)
+	if err == request.ErrIncorrectAccessToken {
+		s.log.Info("mismatch or lack of access token")
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "для совершение этого действия нужен правильный токен доступа"})
+		return
+	}
+	if err != nil {
+		s.log.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "не удалось изменить статус возвращения заявки"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "статус возвращения заявки успешно изменен"})
+	}
 }

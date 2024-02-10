@@ -3,6 +3,7 @@ package request
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/gvidow/go-technical-equipment/internal/app/ds"
@@ -11,6 +12,8 @@ import (
 )
 
 var _ok = struct{}{}
+
+const _accessTokenKey = "TE_INTERNAL_ACCESS_TOKEN"
 
 var _permissionsChangeStatuses = map[ds.Role]map[string]struct{}{
 	ds.RegularUser: {
@@ -24,9 +27,10 @@ var _permissionsChangeStatuses = map[ds.Role]map[string]struct{}{
 }
 
 var (
-	ErrNotAccess          = errors.New("not access")
-	ErrRoleHaveNotAccess  = errors.New("the role does not have access")
-	ErrStatusCannotChange = errors.New("the status cannot be changed")
+	ErrNotAccess            = errors.New("not access")
+	ErrRoleHaveNotAccess    = errors.New("the role does not have access")
+	ErrStatusCannotChange   = errors.New("the status cannot be changed")
+	ErrIncorrectAccessToken = errors.New("incorrect access-token")
 )
 
 type Usecase struct {
@@ -60,6 +64,11 @@ func (u *Usecase) ToFormRequest(requestID int, userID int) error {
 	}
 	if req.Status != "entered" {
 		return ErrStatusCannotChange
+	}
+
+	err = sendRequestToAsyncServer(requestID)
+	if err != nil {
+		return fmt.Errorf("to form status request: %w", err)
 	}
 
 	req.Status = "operation"
@@ -197,4 +206,12 @@ func (u *Usecase) revealModerator(request *ds.Request) error {
 	request.Moderator = 0
 	request.ModeratorProfile = user
 	return nil
+}
+
+func (u *Usecase) UpdateFieldReverted(reqID int, reverted bool, accessToken string) error {
+	if os.Getenv(_accessTokenKey) != accessToken {
+		return ErrIncorrectAccessToken
+	}
+
+	return u.repo.UpdateReverted(reqID, reverted)
 }

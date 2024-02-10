@@ -40,7 +40,7 @@ func (er *equipmentRepo) DeleteEquipmentByID(id int) error {
 }
 
 func (er *equipmentRepo) AddEquipment(eq *ds.Equipment) (*ds.Equipment, error) {
-	err := er.db.Save(eq).Scan(eq).Error
+	err := er.db.Omit("count").Save(eq).Scan(eq).Error
 	if err != nil {
 		return nil, fmt.Errorf("add equipment in storage: %w", err)
 	}
@@ -59,10 +59,6 @@ func (er *equipmentRepo) ViewFeedEquipment(cfg ds.FeedEquipmentConfig) ([]ds.Equ
 
 func (er *equipmentRepo) buildQueryFeedEquipment(cfg ds.FeedEquipmentConfig) *gorm.DB {
 	db := er.db
-
-	if cfg.InStock {
-		db = db.Where("count > 0")
-	}
 
 	if title, ok := cfg.TitleFilter(); ok {
 		db = db.Where("title LIKE ?", "%"+title+"%")

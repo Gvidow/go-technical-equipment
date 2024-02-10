@@ -38,7 +38,9 @@ func (r *requestRepo) SaveRequest(req *ds.Request) error {
 
 	db := r.db
 	if req.Moderator == 0 {
-		db = db.Omit("moderator")
+		db = db.Omit("Equipments", "moderator")
+	} else {
+		db = db.Omit("Equipments")
 	}
 
 	if err := db.Save(req).Error; err != nil {
@@ -139,4 +141,8 @@ func (r *requestRepo) RevealEquipments(request *ds.Request) error {
 		return fmt.Errorf("select equipments in request: %w", err)
 	}
 	return nil
+}
+
+func (r *requestRepo) UpdateReverted(reqID int, reverted bool) error {
+	return r.db.Model(&ds.Request{}).Where("id = ?", reqID).Update("reverted", reverted).Error
 }

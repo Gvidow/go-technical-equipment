@@ -30,7 +30,7 @@ type responseWithEquipment struct {
 }
 
 type responseWithFeedEquipment struct {
-	Equipments []responseWithEquipment `json:"equipments`
+	Equipments []responseWithEquipment `json:"equipments"`
 	DraftId    int                     `json:"last_request_id"`
 }
 

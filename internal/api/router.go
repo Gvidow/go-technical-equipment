@@ -74,5 +74,7 @@ func produceRouting(r *gin.Engine, s *service.Service, cfg *config.Config, bl *r
 			auth.POST("/signup", s.Signup)
 			auth.Use(middlewares.RequireAuth()).DELETE("/logout", s.Logout)
 		}
+
+		api.PUT("/stocks/edit/:id", s.UpdateRequestRevertedStatus)
 	}
 }

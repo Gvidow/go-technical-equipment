@@ -13,4 +13,5 @@ type Repository interface {
 	SaveUpdatedRequest(req *ds.Request) error
 	UpdateRequest(requestID int, changes map[string]any) error
 	RevealEquipments(request *ds.Request) error
+	UpdateReverted(reqID int, reverted bool) error
 }
