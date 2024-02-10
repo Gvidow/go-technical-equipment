@@ -52,10 +52,10 @@ func (s *Service) GetListEquipments(c *gin.Context) {
 // @Param        equipment      query      string  false  "Title filter"
 // @Param        status         query      string  false  "Status filter"
 // @Param        createdAfter   query      string  false  "Created after" format(date) example(30.12.2023)
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk{body=responseWithFeedEquipment}
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/list [get]
 func (s *Service) FeedEquipment(c *gin.Context) {
 	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
@@ -94,10 +94,10 @@ func (s *Service) FeedEquipment(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id         path      int  true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk{body=responseWithEquipment}
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/get/{id} [get]
 func (s *Service) GetOneEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
@@ -118,14 +118,17 @@ func (s *Service) GetOneEquipment(c *gin.Context) {
 // @Summary      Adding a equipment
 // @Description  adding new equipment to the turnover
 // @Tags         equipment
-// @Accept       json
+// @Accept       mpfd
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        id         path      int  true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Param        title   body   string  false        "Title equipment"
+// @Param        description  body   string  false   "Description equipment"
+// @Param        status   body   string  false       "Status equipment"
+// @Param        picture  body   string  false       "Picture equipment"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/add [post]
 func (s *Service) AddNewEquipment(c *gin.Context) {
 	err := c.Request.ParseMultipartForm(50 * 1024 * 1024)
@@ -176,14 +179,18 @@ func (s *Service) AddNewEquipment(c *gin.Context) {
 // @Summary      Update a equipment
 // @Description  edit the active equipment
 // @Tags         equipment
-// @Accept       json
+// @Accept       mpfd
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        id         path      int  true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Param        id         path      int  true      "Equipment id"
+// @Param        title   body   string  false        "Title equipment"
+// @Param        description  body   string  false   "Description equipment"
+// @Param        status   body   string  false       "Status equipment"
+// @Param        picture  body   string  false   "Picture equipment"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/edit/{id} [put]
 func (s *Service) EditEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
@@ -255,10 +262,10 @@ func (s *Service) EditEquipment(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id         path      int  true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/delete/{id} [delete]
 func (s *Service) DeleteEquipment(c *gin.Context) {
 	id, err := FetchIdFromURLPath(c)
@@ -283,10 +290,11 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id         path      int  true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Success      201  {object}  ResponseOk{body=responseBodyID}
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /equipment/last/{id} [post]
 func (s *Service) AddEquipmentInLastRequest(c *gin.Context) {
 	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)

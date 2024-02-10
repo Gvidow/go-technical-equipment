@@ -8,6 +8,10 @@ import (
 	mw "github.com/gvidow/go-technical-equipment/internal/pkg/middlewares"
 )
 
+type bodyCount struct {
+	Count int
+}
+
 // ShowAccount godoc
 // @Summary      Edit count equipment from the request
 // @Description  edit count equipment from the user's request with status 'entered'
@@ -16,10 +20,11 @@ import (
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id   path      int  true  "Equipment ID"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Param        new_count   body      bodyCount  true  "New count for equipment with id"
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /order/edit/count/{id} [put]
 func (s *Service) EditCount(c *gin.Context) {
 	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
@@ -37,7 +42,7 @@ func (s *Service) EditCount(c *gin.Context) {
 		return
 	}
 
-	var count struct{ Count int }
+	var count bodyCount
 	err = json.NewDecoder(c.Request.Body).Decode(&count)
 	c.Request.Body.Close()
 	if err != nil {
@@ -69,10 +74,10 @@ func (s *Service) EditCount(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id               path      int     true  "Equipment id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /order/delete/{id} [delete]
 func (s *Service) DeleteOrder(c *gin.Context) {
 	user := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)

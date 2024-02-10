@@ -8,7 +8,7 @@ type Equipment struct {
 	Picture     string    `json:"picture"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	Count       int       `json:"count"`
+	Count       int       `json:"count,omitempty"`
 	Requests    []Request `json:"-" gorm:"many2many:orders;"`
 }
 

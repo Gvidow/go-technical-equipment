@@ -22,10 +22,10 @@ import (
 // @Param        status               query      string     false  "Status filter" example(completed)
 // @Param        formatedAfter        query      string     false  "Request formatted after filter" format(date) example(30.12.2023)
 // @Param        formatedBefore       query      string     false  "Request formatted before filter" format(date) example(30.12.2023)
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk{body=responseRequests}
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /request/list [get]
 func (s *Service) ListRequest(c *gin.Context) {
 	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
@@ -56,10 +56,10 @@ func (s *Service) ListRequest(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id               path      int     true  "Request id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk{body=ds.Request}
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /request/get/{id} [get]
 func (s *Service) GetRequest(c *gin.Context) {
 	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
@@ -115,10 +115,10 @@ func (s *Service) EditRequest(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id               path      int     true  "Request id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /request/format/{id} [put]
 func (s *Service) OperationRequest(c *gin.Context) {
 	userID := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole).UserID
@@ -185,6 +185,10 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 	c.JSON(status, gin.H{"status": "error", "message": message})
 }
 
+type bodyStatus struct {
+	Status string
+}
+
 // ShowAccount godoc
 // @Summary      Change status of the request
 // @Description  edit status request from 'entered' to received
@@ -193,10 +197,11 @@ func (s *Service) StatusChangeByCreator(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id               path      int     true  "Request id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Param        new_status   body      bodyStatus  true  "New status for request with id" example(completed)
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /request/status/change/moderator/{id} [put]
 func (s *Service) StatusChangeByModerator(c *gin.Context) {
 	user, ok := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)
@@ -211,9 +216,7 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 		return
 	}
 
-	var newStatus struct {
-		Status string
-	}
+	var newStatus bodyStatus
 
 	err = json.NewDecoder(c.Request.Body).Decode(&newStatus)
 	defer c.Request.Body.Close()
@@ -252,10 +255,10 @@ func (s *Service) StatusChangeByModerator(c *gin.Context) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Param        id               path      int     true  "Request id"
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /request/delete/{id} [delete]
 func (s *Service) DropRequest(c *gin.Context) {
 	ctxUser := c.Request.Context().Value(mw.ContextUser).(mw.UserWithRole)

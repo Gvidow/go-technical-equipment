@@ -30,7 +30,7 @@ type loginResp struct {
 // @Produce      json
 // @Param        loginParam   body      loginReq  true  "Credentials"
 // @Success      200  {object}  ResponseOk{body=loginResp}
-// @Failure      400  {object}  any{Body int}
+// @Failure      400  {object}  ResponseError
 // @Failure      404  {object}  ResponseError
 // @Failure      500  {object}  ResponseError
 // @Router       /auth/login [post]
@@ -109,10 +109,10 @@ func (s *Service) Signup(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Success      200  {object}  int
-// @Failure      400  {object}  int
-// @Failure      404  {object}  string
-// @Failure      500  {object}  int
+// @Success      200  {object}  ResponseOk
+// @Failure      400  {object}  ResponseError
+// @Failure      404  {object}  ResponseError
+// @Failure      500  {object}  ResponseError
 // @Router       /auth/logout [delete]
 func (s *Service) Logout(c *gin.Context) {
 	err := s.authCase.Logout(c, c.GetHeader(s.cfg.JWT.Header), s.cfg.JWT)
