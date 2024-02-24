@@ -9,6 +9,7 @@ import (
 	"github.com/gvidow/go-technical-equipment/internal/app/config"
 	"github.com/gvidow/go-technical-equipment/internal/app/dsn"
 	"github.com/gvidow/go-technical-equipment/internal/app/repository/equipment"
+	"github.com/gvidow/go-technical-equipment/internal/app/repository/request"
 	"github.com/gvidow/go-technical-equipment/internal/app/usecase"
 	"github.com/gvidow/go-technical-equipment/internal/pkg/service"
 	"github.com/gvidow/go-technical-equipment/logger"
@@ -28,7 +29,8 @@ func New(log *logger.Logger, cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 	repo := equipment.NewRepository(db)
-	u := usecase.New(repo)
+	reqRepo := request.NewRepository(db)
+	u := usecase.New(repo, reqRepo)
 	tmpl := template.Must(template.ParseGlob("templates/*"))
 	s := service.New(log, tmpl, u)
 	r := api.New(cfg, s, tmpl)

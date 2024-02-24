@@ -1,24 +1,23 @@
 <!doctype html>
 <html lang="ru" data-bs-theme="light">
+  <head>
 
     <meta charset="utf-8">
     <title>Technical Equipment</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
-    <link type="text/css" rel="stylesheet" charset="UTF-8" href="https://www.gstatic.com/_/translate_http/_/ss/k=translate_http.tr.qhDXWpKopYk.L.W.O/d=0/rs=AN8SPfp0QXhhaDDdjg_LgcSqoZiPEzC1tw/m=el_main_css">
 
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/scroller.css" rel="stylesheet">
     <link href="/static/css/my.css" rel="stylesheet">
-    <link href="/static/css/carousel.css" rel="stylesheet">
 
-    <link rel="apple-touch-icon" href="/static/img/printer-icon.svg" sizes="180x180">
-    <link rel="icon" href="/static/img/printer-icon.svg" sizes="32x32" type="image/svg+xml">
-    <link rel="icon" href="/static/img/printer-icon.svg" sizes="16x16" type="image/svg+xml">
-    <link rel="manifest" href="/static/img/printer-icon.svg">
-    <link rel="mask-icon" href="/static/img/printer-icon.svg">
-    <link rel="icon" href="/static/img/printer-icon.svg">
-    <meta name="theme-color" content="#712cf9">
+<link rel="apple-touch-icon" href="/static/img/printer-icon.svg" sizes="180x180">
+<link rel="icon" href="/static/img/printer-icon.svg" sizes="32x32" type="image/svg+xml">
+<link rel="icon" href="/static/img/printer-icon.svg" sizes="16x16" type="image/svg+xml">
+<link rel="manifest" href="/static/img/printer-icon.svg">
+<link rel="mask-icon" href="/static/img/printer-icon.svg">
+<link rel="icon" href="/static/img/printer-icon.svg">
+<meta name="theme-color" content="#712cf9">
 
 
     
@@ -40,26 +39,13 @@
       </symbol>
     </svg>
 
-    
 <header data-bs-theme="dark" class="" style="z-index: 1020; position: sticky; top: 0; width: 100%;">
-  <div class="collapse text-bg-dark" id="navbarHeader">
-    <div class="container row">
-      <h2>Возможно понадобится</h2>
-    </div>
-  </div>
-
   <div class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container">
       <a href="/main" class="navbar-brand d-flex align-items-center">
         <img id="logo" src="/static/img/printer.svg" alt="equipment">
         <strong>Оборудование</strong>
       </a>
-
-        <form class="d-flex" role="search" method="GET" action="#">
-          <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск" name="search">
-          <button class="btn btn-outline-success" type="submit"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Поиск</font></font></button>
-        </form>
-
       <div class="text-end">
         <button type="button" class="btn btn-outline-light me-2">Вход</button>
         <button type="button" class="btn btn-warning">Регистрация</button>
@@ -73,37 +59,64 @@
 
 <main>
 
-  <div class="row featurette" style="width: 100%">
-    <div class="col-md-7 order-md-2">
-      <h2 class="featurette-heading fw-normal lh-1"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"> {{.Title}} </font></font><span class="text-body-secondary"></span></h2>
-      <div style="margin: 20px">
-        <a href="/main">
-      <button type="button" class="btn btn-primary" style="margin-right:15px">
-        <img src="/static/img/arrow-left.svg" alt="back">
-        Назад
-      </button>
-        </a>
-      <button type="button" class="btn btn-primary">
-        <img src="/static/img/clipboard-plus.svg" alt="order">
-        Заказать
-      </button>
+  <section id="section" class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">Заявка</h1>
+        <p class="lead text-body-secondary">Здесь вы можете посмотреть содержимое вашей заявки.</p>
       </div>
-      <span>
-      <p>Всего: {{.Count}}</p>
-      <p>Сейчас доступно: {{.AvailableNow}}</p>
-    </span>
     </div>
-    <div class="col-md-5 order-md-1 equipment-div" style="width: 300px; height: 300px;">
-      <img src="{{.Picture}}" alt="picture">
-    </div>
-  </div>
-  <hr class="featurette-divider">
-  <div style="margin-left: 60px; margin-right: 60px;">
-    <h2>Описание</h2>
-    <p>{{.Description}}</p>
-  </div>
-</main>
+  </section>
 
+  <div id="board" class="album py-5 bg-body-tertiary">
+    <h3>Информация о заявке:</h3>
+    <p>Создана: {{.CreatedAt}}</p>
+    <p>Автор: {{.CreatorProfile.Username}}</p>
+    {{if .ModeratorProfile}}
+        <p>Модератор: {{.ModeratorProfile.Username}}</p>
+    {{end}}
+    {{if .FormatedAt}}
+        <p>Сформирована: {{.FormatedAt}}</p>
+    {{end}}
+    {{if .CompletedAt}}
+        <p>Выполнена: {{.CompletedAt}}</p>
+    {{end}}
+    {{if .Reverted}}
+        <p>Возвращена</p>
+    {{end}}
+    <h3>Содержимое:</h3>
+    <div class="container">
+
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+
+        {{range .Equipments}}
+        <div>
+          <div class="card shadow-sm">
+            <div class="equipment-div">
+              <img src="{{.Picture}}" alt="f">
+            </div>
+            <div class="card-body">
+              <p class="card-text text-center">{{.Title}}</p>
+              <p class="card-text">{{.Description}}</p>
+              <small class="text-body-secondary">Количество: {{.Count}}</small>
+            </div>
+          </div>
+        </div>
+        {{end}}
+
+
+      </div>
+      {{if eq .Status "entered"}}
+      <div>
+        <button class="btn btn-success">Сформировать</button>
+        <button class="btn btn-danger">Удалить</button>
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+</main>
 
 <script src="/static/js/bootstrap.bundle.min.js"></script>
 

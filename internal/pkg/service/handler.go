@@ -30,6 +30,14 @@ func (s *Service) MainPage(c *gin.Context) {
 		}
 	}
 	data["Equipments"] = equipments
+
+	if req, err := s.u.Request().GetEnteredRequest(); err != nil {
+		s.log.Error(err)
+		data["CartID"] = 0
+	} else {
+		data["CartID"] = req.ID
+	}
+
 	c.HTML(http.StatusOK, "index.html", data)
 }
 
@@ -65,6 +73,44 @@ func (s *Service) DeleteEquipment(c *gin.Context) {
 	} else {
 		c.Redirect(http.StatusFound, MainPageURL)
 	}
+}
+
+func (s *Service) RequestDetail(c *gin.Context) {
+	idString := c.Param("id")
+	requestID, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		s.log.Error(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	request, err := s.u.Request().GetRequestByID(int(requestID))
+	if err != nil {
+		s.log.Error(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	// if q, ok := c.Request.Form["title"]; ok {
+	// 	data["Search"] = q[0]
+	// 	equipments, err = s.u.Equipment().SearchEquipmentsByTitle(q[0])
+	// 	if err != nil {
+	// 		s.log.Error(err)
+	// 	}
+	// } else {
+	// 	equipments, err = s.u.Equipment().GetAllEquipments()
+	// 	if err != nil {
+	// 		s.log.Error(err)
+	// 	}
+	// }
+	// data["Equipments"] = equipments
+
+	// if req, err := s.u.Request().GetEnteredRequest(); err != nil {
+	// 	s.log.Error(err)
+	// 	data["CartID"] = 0
+	// } else {
+	// 	data["CartID"] = req.ID
+	// }
+	c.HTML(http.StatusOK, "request.html", request)
 }
 
 func (s *Service) BadRequest(c *gin.Context) {

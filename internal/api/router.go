@@ -25,5 +25,11 @@ func produceRouting(r *gin.Engine, s *service.Service) {
 		eq.GET("/:id", s.Equipment)
 		eq.POST("/:id", s.DeleteEquipment)
 	}
+
+	req := r.Group("/request")
+	{
+		req.GET("/:id", s.RequestDetail)
+	}
+
 	r.NoRoute(s.BadRequest)
 }
